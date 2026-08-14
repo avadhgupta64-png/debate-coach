@@ -18,6 +18,7 @@ import {
   BarChart2,
 } from 'lucide-react';
 import { useDebateHistory } from '../hooks/useDebateHistory.js';
+import { useDocumentTitle } from '../hooks/useDocumentTitle.js';
 import PositionBadge from '../components/PositionBadge.jsx';
 import ScoreBar from '../components/ScoreBar.jsx';
 import { SCORE_LABELS } from '../data/mockData.js';
@@ -577,6 +578,7 @@ export default function HistoryPage() {
   const navigate = useNavigate();
   const { history, stats, clearHistory } = useDebateHistory();
   const [confirmClear, setConfirmClear] = useState(false);
+  useDocumentTitle('Debate History');
 
   const handleClear = () => {
     if (!confirmClear) {

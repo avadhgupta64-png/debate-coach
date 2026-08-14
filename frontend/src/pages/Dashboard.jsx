@@ -79,6 +79,8 @@ function timeAgo(isoString) {
 export default function Dashboard() {
   const navigate = useNavigate();
   const { history, stats } = useDebateHistory();
+  useDocumentTitle('Dashboard');
+
 
   // Show the 3 most recent debates
   const recentDebates = history.slice(0, 3);

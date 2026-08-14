@@ -13,6 +13,7 @@ import {
 import { useDebate } from '../App.jsx';
 import { useToast } from '../App.jsx';
 import { useDebateSession } from '../hooks/useDebateSession.js';
+import { useDocumentTitle } from '../hooks/useDocumentTitle.js';
 import LoadingSpinner from '../components/LoadingSpinner.jsx';
 import ArgumentCard from '../components/ArgumentCard.jsx';
 import EvidenceCard from '../components/EvidenceCard.jsx';
@@ -55,6 +56,7 @@ export default function Preparation() {
   const [data, setData] = useState(null);
 
   const config = debate.config;
+  useDocumentTitle('Prepare for Debate');
 
   useEffect(() => {
     if (!config) {

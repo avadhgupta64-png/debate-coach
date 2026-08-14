@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://debate-coach-zeta.vercel.app/sitemap.xml

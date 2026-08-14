@@ -13,6 +13,7 @@ import {
   History,
 } from 'lucide-react';
 import { useDebate } from '../App.jsx';
+import { useDocumentTitle } from '../hooks/useDocumentTitle.js';
 import ScoreBar from '../components/ScoreBar.jsx';
 import PositionBadge from '../components/PositionBadge.jsx';
 import { SCORE_LABELS } from '../data/mockData.js';
@@ -92,6 +93,7 @@ export default function Results() {
   const results = debate.results;
   const config = debate.config;
   const savedRef = useRef(false);
+  useDocumentTitle('Debate Results');
 
   // Save to history once when results first load
   useEffect(() => {

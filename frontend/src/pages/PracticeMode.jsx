@@ -17,6 +17,7 @@ import { useDebateSession } from '../hooks/useDebateSession.js';
 import PositionBadge from '../components/PositionBadge.jsx';
 import LoadingSpinner from '../components/LoadingSpinner.jsx';
 import RoundFeedback from '../components/RoundFeedback.jsx';
+import { useDocumentTitle } from '../hooks/useDocumentTitle.js';
 
 const TOTAL_ROUNDS = 5;
 
@@ -63,6 +64,7 @@ export default function PracticeMode() {
   const { loading, error, challenge, evaluate, complete, clearError } = useDebateSession();
 
   const config = debate.config;
+  useDocumentTitle('Practice Debate');
 
   const [round, setRound] = useState(1);
   const [currentChallenge, setCurrentChallenge] = useState('');

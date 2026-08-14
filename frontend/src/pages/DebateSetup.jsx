@@ -13,6 +13,7 @@ import {
 import { useDebate } from '../App.jsx';
 import { useToast } from '../App.jsx';
 import { SUGGESTED_TOPICS, DIFFICULTIES, DEBATE_TYPES, TIME_LIMITS } from '../data/mockData.js';
+import { useDocumentTitle } from '../hooks/useDocumentTitle.js';
 
 const POSITION_OPTIONS = [
   { value: 'for', label: 'For', desc: 'Argue in favour', icon: <ThumbsUp size={18} /> },
@@ -89,6 +90,7 @@ export default function DebateSetup() {
   const navigate = useNavigate();
   const { setConfig } = useDebate();
   const { addToast } = useToast();
+  useDocumentTitle('Start a Debate');
 
   const [topic, setTopic] = useState('');
   const [position, setPosition] = useState('for');
