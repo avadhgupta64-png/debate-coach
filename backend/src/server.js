@@ -13,6 +13,8 @@ const allowedOrigins = [
   process.env.FRONTEND_URL || 'http://localhost:5173',
   'http://localhost:5173',
   'http://localhost:4173', // vite preview
+  'https://debate-coach-avadhgupta64-png.vercel.app',
+  'https://debate-coach.vercel.app',
 ];
 
 app.use(cors({
@@ -21,6 +23,10 @@ app.use(cors({
     if (!origin) return callback(null, true);
     // in dev, allow any localhost/127.0.0.1 origin regardless of port
     if (isDev && /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin)) {
+      return callback(null, true);
+    }
+    // allow any vercel.app subdomain (covers preview deployments too)
+    if (/^https:\/\/[a-z0-9-]+\.vercel\.app$/.test(origin)) {
       return callback(null, true);
     }
     if (allowedOrigins.includes(origin)) {
