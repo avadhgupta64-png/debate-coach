@@ -13,6 +13,7 @@ import {
   Clock,
 } from 'lucide-react';
 import { useDebateHistory } from '../hooks/useDebateHistory.js';
+import { useDocumentTitle } from '../hooks/useDocumentTitle.js';
 import PositionBadge from '../components/PositionBadge.jsx';
 
 const DIFFICULTY_COLORS = {
