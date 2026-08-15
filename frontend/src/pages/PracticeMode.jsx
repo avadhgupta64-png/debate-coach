@@ -331,23 +331,50 @@ export default function PracticeMode() {
     }
   };
 
-  const handleSkip = () => {
+  const handleSkip = async () => {
     // Record a 0 score for the skipped round so the final average is accurate
     const newScores = [...allScores, 0];
-    const newResponses = [...allResponses, ''];
+    const newResponses = [...allResponses, '[skipped]'];
+
+    // Add the skipped challenge to history so the transcript is complete
+    const newHistory = [
+      ...history,
+      { type: 'challenge', text: currentChallenge, round },
+      { type: 'response', text: '[Round skipped]', round },
+    ];
+    setHistory(newHistory);
     setAllScores(newScores);
     setAllResponses(newResponses);
+    setResponse('');
+    resetHints();
 
     if (round >= TOTAL_ROUNDS) {
-      finishDebate(newScores, newResponses, history);
+      finishDebate(newScores, newResponses, newHistory);
       return;
     }
-    resetHints();
-    setRound((r) => r + 1);
-    setResponse('');
+
+    // Fetch a fresh challenge for the next round
+    const nextRound = round + 1;
+    setRound(nextRound);
     setCurrentEval(null);
-    setPhase('challenge');
-    setTimerRunning(true);
+    setPhase('loading');
+    setTimerRunning(false);
+    try {
+      const result = await challenge({
+        topic: config.topic,
+        position: config.position,
+        difficulty: config.difficulty,
+        round: nextRound,
+        previousResponse: '',
+        conversationHistory: newHistory,
+      });
+      setCurrentChallenge(result.challenge);
+      setPhase('challenge');
+      setTimerRunning(true);
+    } catch (err) {
+      addToast('Failed to load next challenge. ' + err.message, 'error');
+      setPhase('challenge');
+    }
   };
 
   const handleEnd = async () => {

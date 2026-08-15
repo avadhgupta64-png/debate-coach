@@ -199,21 +199,35 @@ const DEMO_EVALUATE = (topic, position, response, round) => ({
   mode: 'demo',
 });
 
-const DEMO_COMPLETE = (topic, position, rounds) => ({
-  overallScore: 62,
-  scores: { logic: 62, evidence: 45, rebuttal: 58, clarity: 72, persuasiveness: 60, structure: 65 },
-  strengths: ['Consistent logical structure across all rounds', 'Strong clarity and readable arguments', 'Good composure under pressure'],
-  weaknesses: ['Evidence and examples were underused throughout', 'Rebuttals could be more targeted', 'Argument structure could be more deliberate'],
-  feedback: `Across ${rounds || 3} rounds on "${topic}", you demonstrated reliable baseline debating ability. Your clearest strength is communication clarity. The primary growth area is evidence deployment: strong debaters anchor claims in data and concrete examples, not just principle.`,
-  coachNote: 'Practice the PEEL framework on your next debate: Point → Evidence → Explanation → Link back.',
-  strongestMoment: 'Your opening framing of the core argument was the most convincing point of the debate.',
-  weakestMoment: 'Round 2 rebuttal — you defended rather than attacked, giving ground unnecessarily.',
-  bestArgument: 'The individual autonomy argument was your most coherent and well-structured point.',
-  biggestMissedOpportunity: 'You never directly challenged your opponent\'s core assumption — that was their most vulnerable point.',
-  recommendedNextSkill: 'Evidence integration: practice citing one specific real-world example per argument.',
-  detectedFallacies: [],
-  mode: 'demo',
-});
+const DEMO_COMPLETE = (topic, position, rounds, avgScore) => {
+  const score = avgScore != null ? Math.round(avgScore) : 62;
+  const allSkipped = score === 0;
+  return {
+    overallScore: score,
+    scores: allSkipped
+      ? { logic: 0, evidence: 0, rebuttal: 0, clarity: 0, persuasiveness: 0, structure: 0 }
+      : { logic: 62, evidence: 45, rebuttal: 58, clarity: 72, persuasiveness: 60, structure: 65 },
+    strengths: allSkipped
+      ? ['No responses were given — nothing to evaluate']
+      : ['Consistent logical structure across all rounds', 'Strong clarity and readable arguments', 'Good composure under pressure'],
+    weaknesses: allSkipped
+      ? ['All rounds were skipped — no arguments were made', 'No evidence or rebuttals were presented', 'No engagement with the opponent\'s challenges']
+      : ['Evidence and examples were underused throughout', 'Rebuttals could be more targeted', 'Argument structure could be more deliberate'],
+    feedback: allSkipped
+      ? `No responses were submitted across ${rounds || 3} rounds on "${topic}". To improve, engage with at least one challenge next time — even a basic response is valuable practice.`
+      : `Across ${rounds || 3} rounds on "${topic}", you demonstrated reliable baseline debating ability. Your clearest strength is communication clarity. The primary growth area is evidence deployment: strong debaters anchor claims in data and concrete examples, not just principle.`,
+    coachNote: allSkipped
+      ? 'The only way to improve is to try. Attempt round 1 next time — even imperfect responses build real skill.'
+      : 'Practice the PEEL framework on your next debate: Point → Evidence → Explanation → Link back.',
+    strongestMoment: allSkipped ? 'N/A — no responses were submitted' : 'Your opening framing of the core argument was the most convincing point of the debate.',
+    weakestMoment: allSkipped ? 'All rounds were skipped' : 'Round 2 rebuttal — you defended rather than attacked, giving ground unnecessarily.',
+    bestArgument: allSkipped ? 'N/A — no arguments were made' : 'The individual autonomy argument was your most coherent and well-structured point.',
+    biggestMissedOpportunity: allSkipped ? 'Every round — no responses were given to any challenge' : 'You never directly challenged your opponent\'s core assumption — that was their most vulnerable point.',
+    recommendedNextSkill: 'Just start: write one response, however rough. Getting words on the page is the first skill to build.',
+    detectedFallacies: [],
+    mode: 'demo',
+  };
+};
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -510,25 +524,33 @@ Rules:
 // ─── 6. Complete Debate (Final Evaluation) ────────────────────────────────────
 
 export const completeDebate = async ({ topic, position, rounds, responses, scores, conversationHistory, totalHintsUsed }) => {
-  if (!isConfigured()) return DEMO_COMPLETE(topic, position, rounds);
+  const avgScore = scores && scores.length > 0
+    ? scores.reduce((a, b) => a + b, 0) / scores.length
+    : 0;
+
+  if (!isConfigured()) return DEMO_COMPLETE(topic, position, rounds, avgScore);
 
   const system = `You are an expert debate coach giving a comprehensive final session evaluation. Be honest, specific, and constructive. Respond ONLY with valid JSON, no markdown.`;
 
-  const avgScore = scores && scores.length > 0
-    ? (scores.reduce((a, b) => a + b, 0) / scores.length).toFixed(1)
-    : '60';
+  const skippedCount = responses ? responses.filter((r) => r === '[skipped]' || r === '').length : 0;
 
   const historyText = conversationHistory && conversationHistory.length > 0
     ? conversationHistory.map((h) => `${h.type === 'challenge' ? 'AI Opponent' : 'Debater'} [Round ${h.round}]: ${h.text}`).join('\n\n')
     : responses ? responses.join('\n\n') : 'Multiple rounds completed';
+
+  const skippedNote = skippedCount > 0
+    ? `\nIMPORTANT: ${skippedCount} out of ${rounds} rounds were skipped (no response given). Skipped rounds score 0. The overall score MUST accurately reflect this — if all rounds were skipped, overallScore must be 0. Do NOT inflate scores for rounds where no response was given.`
+    : '';
 
   const user = `Generate a comprehensive final debate evaluation.
 
 Topic: "${topic}"
 Position: ${position}
 Rounds completed: ${rounds}
-Average round score: ${avgScore}/100
+Rounds skipped (no response): ${skippedCount}
+Average round score (already accounting for 0s on skipped rounds): ${avgScore.toFixed(1)}/100
 Hints used total: ${totalHintsUsed || 0}
+${skippedNote}
 
 Full debate transcript:
 ${historyText}
