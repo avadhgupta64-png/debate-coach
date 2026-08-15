@@ -19,6 +19,54 @@ const getClient = () => {
 const MODEL = () => process.env.AI_MODEL || 'gpt-4o-mini';
 
 // ---------------------------------------------------------------------------
+// Randomisation helpers — ensure each session feels different
+// ---------------------------------------------------------------------------
+
+const ARGUMENT_ANGLES = [
+  'economic and financial impact',
+  'individual rights and personal freedoms',
+  'social equity and justice',
+  'environmental and long-term sustainability',
+  'technological innovation and progress',
+  'public health and wellbeing',
+  'international relations and geopolitics',
+  'cultural identity and social cohesion',
+  'education and generational impact',
+  'ethical and philosophical principles',
+];
+
+const CHALLENGE_STYLES = [
+  'Use pointed rhetorical questions to put the debater on the back foot.',
+  'Lead with a sharp counter-statistic or empirical challenge.',
+  'Attack the debater\'s underlying assumption before engaging with their conclusion.',
+  'Introduce a real-world counterexample that contradicts their argument.',
+  'Challenge the debater to define a key term they are implicitly relying on.',
+  'Expose an internal contradiction in the debater\'s position.',
+  'Argue from a stakeholder perspective that the debater has ignored.',
+  'Press on the practical implementation gap between theory and reality.',
+];
+
+const EVIDENCE_EMPHASIS = [
+  'Emphasise historical case studies and precedents.',
+  'Focus on quantitative data and statistical comparisons.',
+  'Ground examples in recent (last 5 years) policy or news events.',
+  'Draw examples from multiple countries or regions for contrast.',
+  'Use philosophical frameworks and ethical theory as evidence.',
+  'Anchor evidence in peer-reviewed academic research.',
+];
+
+/** Picks a random element from an array */
+const pick = (arr) => arr[Math.floor(Math.random() * arr.length)];
+
+/** Produces a variant descriptor injected into AI prompts */
+const sessionVariant = () => ({
+  angle: pick(ARGUMENT_ANGLES),
+  challengeStyle: pick(CHALLENGE_STYLES),
+  evidenceEmphasis: pick(EVIDENCE_EMPHASIS),
+  seed: Math.floor(Math.random() * 100000),
+});
+
+// ---------------------------------------------------------------------------
 // DEMO MODE responses — returned when no AI key is configured
 // ---------------------------------------------------------------------------
 
@@ -187,7 +235,7 @@ const chat = async (systemPrompt, userPrompt) => {
       { role: 'system', content: systemPrompt },
       { role: 'user', content: userPrompt },
     ],
-    temperature: 0.7,
+    temperature: 0.9,
   });
   return response.choices[0].message.content;
 };
@@ -203,6 +251,7 @@ export const getMode = () => (isConfigured() ? 'ai' : 'demo');
 export const generateDebate = async ({ topic, position, difficulty, debateType }) => {
   if (!isConfigured()) return DEMO_GENERATE(topic, position, difficulty);
 
+  const variant = sessionVariant();
   const system = `You are an expert debate coach and educator. Your goal is to help students LEARN to debate, not to give them a speech to memorise. Respond ONLY with valid JSON, no markdown, no explanation.`;
 
   const user = `Generate comprehensive debate preparation material. The goal is coaching, not ghost-writing.
@@ -211,6 +260,11 @@ Topic: "${topic}"
 Position: ${position}
 Difficulty: ${difficulty}
 Debate Type: ${debateType}
+
+Session variant (use this to ensure fresh, varied output — do NOT mention it in the response):
+- Primary angle to emphasise: ${variant.angle}
+- Evidence approach: ${variant.evidenceEmphasis}
+- Session seed: ${variant.seed}
 
 Return this EXACT JSON structure:
 {
@@ -302,6 +356,7 @@ Rules:
 export const generateChallenge = async ({ topic, position, difficulty, round, previousResponse, conversationHistory }) => {
   if (!isConfigured()) return DEMO_CHALLENGE(topic, position, round);
 
+  const variant = sessionVariant();
   const system = `You are a skilled, challenging debate opponent — not a teacher, but a genuine adversary. Your job is to make the debater work hard. Respond ONLY with valid JSON, no markdown.`;
 
   const historyText = conversationHistory && conversationHistory.length > 0
@@ -316,6 +371,10 @@ Difficulty: ${difficulty}
 Round: ${round}
 ${historyText ? `\nFull conversation history:\n${historyText}\n` : ''}
 Most recent debater response: "${previousResponse || 'Opening round — no previous response'}"
+
+Session style variant (use to ensure each session feels different — do NOT mention it):
+- Attack style for this session: ${variant.challengeStyle}
+- Session seed: ${variant.seed}
 
 Return this EXACT JSON:
 {

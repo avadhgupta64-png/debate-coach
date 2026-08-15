@@ -339,9 +339,6 @@ export default function PracticeMode() {
     setAllResponses(newResponses);
 
     if (round >= TOTAL_ROUNDS) {
-      // If every single round was skipped (no real responses), just go back to setup
-      const hasAnyResponse = newResponses.some((r) => r.trim().length > 0);
-      if (!hasAnyResponse) { navigate('/setup'); return; }
       finishDebate(newScores, newResponses, history);
       return;
     }

@@ -22,6 +22,7 @@ import { useDocumentTitle } from '../hooks/useDocumentTitle.js';
 import PositionBadge from '../components/PositionBadge.jsx';
 import ScoreBar from '../components/ScoreBar.jsx';
 import { SCORE_LABELS } from '../data/mockData.js';
+import { useAuth } from '../contexts/AuthContext.jsx';
 
 const DIFFICULTY_COLORS = {
   beginner: 'var(--color-success)',
@@ -576,7 +577,8 @@ function DebateCard({ debate, index }) {
 
 export default function HistoryPage() {
   const navigate = useNavigate();
-  const { history, stats, clearHistory } = useDebateHistory();
+  const { currentUser } = useAuth();
+  const { history, stats, clearHistory } = useDebateHistory(currentUser?.uid);
   const [confirmClear, setConfirmClear] = useState(false);
   useDocumentTitle('Debate History');
 

@@ -23,6 +23,7 @@ import ScoreBar from '../components/ScoreBar.jsx';
 import PositionBadge from '../components/PositionBadge.jsx';
 import { SCORE_LABELS } from '../data/mockData.js';
 import { useDebateHistory } from '../hooks/useDebateHistory.js';
+import { useAuth } from '../contexts/AuthContext.jsx';
 
 // ─── Score Circle: handles 0-10 and 0-100 ────────────────────────────────────
 
@@ -111,7 +112,8 @@ function FallacyCard({ fallacy, index }) {
 export default function Results() {
   const navigate = useNavigate();
   const { debate, reset } = useDebate();
-  const { saveDebate } = useDebateHistory();
+  const { currentUser } = useAuth();
+  const { saveDebate } = useDebateHistory(currentUser?.uid);
   const results = debate.results;
   const config = debate.config;
   const savedRef = useRef(false);

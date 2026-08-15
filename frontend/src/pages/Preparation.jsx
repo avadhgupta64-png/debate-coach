@@ -83,11 +83,13 @@ function CollapsibleSection({ icon, title, color, subtitle, children, defaultOpe
 
 // ─── Argument Refinement Panel ────────────────────────────────────────────────
 
-function RefinementPanel({ config, refine, loading: globalLoading }) {
+function RefinementPanel({ config }) {
   const [argument, setArgument] = useState('');
   const [feedback, setFeedback] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  // Use a completely independent session so refine errors never affect the parent page
+  const { refine } = useDebateSession();
   const wordCount = argument.trim() ? argument.trim().split(/\s+/).length : 0;
 
   const handleRefine = async () => {
@@ -134,7 +136,7 @@ function RefinementPanel({ config, refine, loading: globalLoading }) {
           placeholder={`Write your argument for the ${config.position === 'for' ? 'FOR' : 'AGAINST'} side here. Be specific — the more detail you include, the better the coaching...`}
           value={argument}
           onChange={(e) => setArgument(e.target.value)}
-          disabled={loading || globalLoading}
+          disabled={loading}
           maxLength={3000}
         />
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 'var(--space-sm)' }}>
@@ -144,7 +146,7 @@ function RefinementPanel({ config, refine, loading: globalLoading }) {
           <button
             className="btn btn-primary"
             onClick={handleRefine}
-            disabled={loading || globalLoading || argument.trim().length < 20}
+            disabled={loading || argument.trim().length < 20}
           >
             {loading ? <><span className="spinner" style={{ width: 16, height: 16 }} /> Analysing...</> : <><Send size={16} /> Analyse My Argument</>}
           </button>
@@ -260,7 +262,7 @@ export default function Preparation() {
   const navigate = useNavigate();
   const { debate, setPreparation } = useDebate();
   const { addToast } = useToast();
-  const { loading, error, generate, refine } = useDebateSession();
+  const { loading, error, generate } = useDebateSession();
   const [data, setData] = useState(null);
 
   const config = debate.config;
@@ -438,7 +440,7 @@ export default function Preparation() {
 
               {/* Argument Refinement */}
               <CollapsibleSection icon={<Zap size={16} />} title="Refine My Argument" color="var(--color-gold)" subtitle="Write your own argument and get personal coaching on how to strengthen it." defaultOpen={false}>
-                <RefinementPanel config={config} refine={refine} loading={loading} />
+                <RefinementPanel config={config} />
               </CollapsibleSection>
 
               {/* CTA */}

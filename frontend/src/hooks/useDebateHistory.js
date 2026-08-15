@@ -1,14 +1,20 @@
 import { useState, useCallback, useEffect } from 'react';
 
-const STORAGE_KEY = 'debate_coach_history';
+// Fallback key used only when no user is signed in (demo / unauthenticated mode).
+const FALLBACK_KEY = 'debate_coach_history_guest';
+
+/** Build the per-user storage key so different accounts never share history. */
+function storageKey(userId) {
+  return userId ? `debate_coach_history_${userId}` : FALLBACK_KEY;
+}
 
 /**
- * Reads the raw history array from localStorage.
+ * Reads the raw history array from localStorage for a given user.
  * Returns an empty array if nothing is stored or on parse error.
  */
-function readHistory() {
+function readHistory(userId) {
   try {
-    const raw = localStorage.getItem(STORAGE_KEY);
+    const raw = localStorage.getItem(storageKey(userId));
     if (!raw) return [];
     const parsed = JSON.parse(raw);
     return Array.isArray(parsed) ? parsed : [];
@@ -18,11 +24,11 @@ function readHistory() {
 }
 
 /**
- * Persists the history array to localStorage.
+ * Persists the history array to localStorage for a given user.
  */
-function writeHistory(history) {
+function writeHistory(userId, history) {
   try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(history));
+    localStorage.setItem(storageKey(userId), JSON.stringify(history));
   } catch {
     // storage might be full — silently skip
   }
@@ -43,8 +49,11 @@ export function deriveStats(history) {
 
   const debatesPracticed = history.length;
 
-  // Average overall score
-  const totalScore = history.reduce((sum, d) => sum + (d.overallScore || 0), 0);
+  // Average overall score — normalise to 0-100 if stored as 0-10
+  const totalScore = history.reduce((sum, d) => {
+    const s = d.overallScore || 0;
+    return sum + (s <= 10 ? s * 10 : s);
+  }, 0);
   const averageScore = +(totalScore / debatesPracticed).toFixed(1);
 
   // Strongest skill — average each skill across all sessions, pick highest
@@ -53,7 +62,9 @@ export function deriveStats(history) {
   history.forEach((d) => {
     if (d.scores && typeof d.scores === 'object') {
       Object.entries(d.scores).forEach(([skill, val]) => {
-        skillTotals[skill] = (skillTotals[skill] || 0) + val;
+        // normalise to 0-100
+        const v = val <= 10 ? val * 10 : val;
+        skillTotals[skill] = (skillTotals[skill] || 0) + v;
         skillCounts[skill] = (skillCounts[skill] || 0) + 1;
       });
     }
@@ -66,6 +77,8 @@ export function deriveStats(history) {
     evidence: 'Evidence',
     clarity: 'Clarity',
     confidence: 'Confidence',
+    persuasiveness: 'Persuasiveness',
+    structure: 'Structure',
   };
 
   let strongestSkill = '—';
@@ -115,44 +128,56 @@ export function deriveStats(history) {
 /**
  * Hook for reading, writing, and reacting to debate history in localStorage.
  *
+ * Pass the current user's UID (string or null) to scope history per account.
+ * Different users on the same browser get completely separate history.
+ *
  * Returns:
  *  - history: array of debate session objects
  *  - stats: derived { debatesPracticed, averageScore, strongestSkill, currentStreak }
  *  - saveDebate(sessionData): appends a new session and persists
- *  - clearHistory(): wipes all stored history
+ *  - clearHistory(): wipes history for this user only
  */
-export function useDebateHistory() {
-  const [history, setHistory] = useState(() => readHistory());
+export function useDebateHistory(userId) {
+  const [history, setHistory] = useState(() => readHistory(userId));
+
+  // Re-load history whenever the userId changes (sign-in / sign-out)
+  useEffect(() => {
+    setHistory(readHistory(userId));
+  }, [userId]);
 
   // Keep in sync when another tab changes localStorage
   useEffect(() => {
+    const key = storageKey(userId);
     const handleStorage = (e) => {
-      if (e.key === STORAGE_KEY) {
-        setHistory(readHistory());
+      if (e.key === key) {
+        setHistory(readHistory(userId));
       }
     };
     window.addEventListener('storage', handleStorage);
     return () => window.removeEventListener('storage', handleStorage);
-  }, []);
+  }, [userId]);
 
-  const saveDebate = useCallback((sessionData) => {
-    const entry = {
-      id: `${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
-      completedAt: new Date().toISOString(),
-      ...sessionData,
-    };
-    setHistory((prev) => {
-      const updated = [entry, ...prev];
-      writeHistory(updated);
-      return updated;
-    });
-    return entry.id;
-  }, []);
+  const saveDebate = useCallback(
+    (sessionData) => {
+      const entry = {
+        id: `${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+        completedAt: new Date().toISOString(),
+        ...sessionData,
+      };
+      setHistory((prev) => {
+        const updated = [entry, ...prev];
+        writeHistory(userId, updated);
+        return updated;
+      });
+      return entry.id;
+    },
+    [userId]
+  );
 
   const clearHistory = useCallback(() => {
-    localStorage.removeItem(STORAGE_KEY);
+    localStorage.removeItem(storageKey(userId));
     setHistory([]);
-  }, []);
+  }, [userId]);
 
   const stats = deriveStats(history);
 

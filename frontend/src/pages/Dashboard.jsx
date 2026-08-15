@@ -15,6 +15,7 @@ import {
 import { useDebateHistory } from '../hooks/useDebateHistory.js';
 import { useDocumentTitle } from '../hooks/useDocumentTitle.js';
 import PositionBadge from '../components/PositionBadge.jsx';
+import { useAuth } from '../contexts/AuthContext.jsx';
 
 const DIFFICULTY_COLORS = {
   beginner: 'var(--color-success)',
@@ -79,7 +80,8 @@ function timeAgo(isoString) {
 
 export default function Dashboard() {
   const navigate = useNavigate();
-  const { history, stats } = useDebateHistory();
+  const { currentUser } = useAuth();
+  const { history, stats } = useDebateHistory(currentUser?.uid);
   useDocumentTitle('Dashboard');
 
 
@@ -223,7 +225,7 @@ export default function Dashboard() {
             <StatCard
               icon={<TrendingUp size={20} color="var(--color-success)" />}
               label="Average Score"
-              value={stats.debatesPracticed > 0 ? `${stats.averageScore}/10` : '—'}
+              value={stats.debatesPracticed > 0 ? `${stats.averageScore}/100` : '—'}
               sub={stats.debatesPracticed > 0 ? 'Across all sessions' : 'No sessions yet'}
               color="var(--color-success)"
             />
