@@ -67,10 +67,14 @@ export const MOCK_STATS = {
 };
 
 export const SCORE_LABELS = {
-  argumentQuality: 'Argument Quality',
-  rebuttal: 'Rebuttal',
+  // New 0-100 scale categories
   logic: 'Logic',
   evidence: 'Evidence',
+  rebuttal: 'Rebuttal',
   clarity: 'Clarity',
+  persuasiveness: 'Persuasiveness',
+  structure: 'Structure',
+  // Legacy 0-10 categories (kept for backward compat with old history entries)
+  argumentQuality: 'Argument Quality',
   confidence: 'Confidence',
 };

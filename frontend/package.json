@@ -9,12 +9,14 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "firebase": "^10.7.1",
     "lucide-react": "0.395.0",
     "react": "18.3.1",
     "react-dom": "18.3.1",
     "react-router-dom": "6.24.0"
   },
   "devDependencies": {
+    "@frontman-ai/vite": "^1.0.4",
     "@vitejs/plugin-react": "4.3.1",
     "vite": "5.3.1"
   }

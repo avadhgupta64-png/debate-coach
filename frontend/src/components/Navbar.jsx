@@ -1,12 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Target, Menu, X, Home, Plus, History } from 'lucide-react';
+import { Target, Menu, X, Home, Plus, History, LogOut, User as UserIcon } from 'lucide-react';
+import { useAuth } from '../contexts/AuthContext.jsx';
 
 export default function Navbar() {
   const location = useLocation();
   const navigate = useNavigate();
+  const { currentUser, signOut } = useAuth();
   const [menuOpen, setMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [profileMenuOpen, setProfileMenuOpen] = useState(false);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 10);
@@ -16,7 +19,17 @@ export default function Navbar() {
 
   useEffect(() => {
     setMenuOpen(false);
+    setProfileMenuOpen(false);
   }, [location.pathname]);
+
+  const handleSignOut = async () => {
+    try {
+      await signOut();
+      navigate('/login');
+    } catch (error) {
+      console.error('Sign out failed:', error);
+    }
+  };
 
   const navLinks = [
     { to: '/', label: 'Dashboard', icon: <Home size={16} /> },
@@ -147,6 +160,158 @@ export default function Navbar() {
               <Plus size={14} />
               Start Debate
             </button>
+
+            {/* User profile dropdown */}
+            {currentUser && (
+              <div style={{ position: 'relative', marginLeft: 'var(--space-sm)' }}>
+                <button
+                  onClick={() => setProfileMenuOpen(!profileMenuOpen)}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                    padding: '6px 12px',
+                    background: 'var(--color-surface-2)',
+                    border: '1px solid var(--color-border)',
+                    borderRadius: 'var(--radius-md)',
+                    cursor: 'pointer',
+                    transition: 'all var(--transition-fast)',
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.borderColor = 'var(--color-primary)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.borderColor = 'var(--color-border)';
+                  }}
+                >
+                  {currentUser.photoURL ? (
+                    <img
+                      src={currentUser.photoURL}
+                      alt={currentUser.displayName || 'User'}
+                      referrerPolicy="no-referrer"
+                      style={{
+                        width: 28,
+                        height: 28,
+                        borderRadius: '50%',
+                        objectFit: 'cover',
+                      }}
+                    />
+                  ) : (
+                    <div
+                      style={{
+                        width: 28,
+                        height: 28,
+                        borderRadius: '50%',
+                        background: 'var(--color-primary)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                      }}
+                    >
+                      <UserIcon size={16} color="#fff" />
+                    </div>
+                  )}
+                  <span
+                    style={{
+                      fontSize: '0.875rem',
+                      fontWeight: 500,
+                      color: 'var(--color-text-primary)',
+                      maxWidth: 120,
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                      whiteSpace: 'nowrap',
+                    }}
+                  >
+                    {currentUser.displayName || 'User'}
+                  </span>
+                </button>
+
+                {/* Dropdown menu */}
+                {profileMenuOpen && (
+                  <>
+                    <div
+                      style={{
+                        position: 'fixed',
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        bottom: 0,
+                        zIndex: 98,
+                      }}
+                      onClick={() => setProfileMenuOpen(false)}
+                    />
+                    <div
+                      style={{
+                        position: 'absolute',
+                        top: 'calc(100% + 8px)',
+                        right: 0,
+                        zIndex: 99,
+                        background: 'var(--color-surface)',
+                        border: '1px solid var(--color-border)',
+                        borderRadius: 'var(--radius-md)',
+                        padding: '8px',
+                        minWidth: 200,
+                        boxShadow: '0 8px 32px rgba(0,0,0,0.3)',
+                      }}
+                    >
+                      <div
+                        style={{
+                          padding: '12px 16px',
+                          borderBottom: '1px solid var(--color-border)',
+                          marginBottom: '8px',
+                        }}
+                      >
+                        <p
+                          style={{
+                            fontSize: '0.875rem',
+                            fontWeight: 600,
+                            color: 'var(--color-text-primary)',
+                            marginBottom: '4px',
+                          }}
+                        >
+                          {currentUser.displayName}
+                        </p>
+                        <p
+                          style={{
+                            fontSize: '0.75rem',
+                            color: 'var(--color-text-muted)',
+                          }}
+                        >
+                          {currentUser.email}
+                        </p>
+                      </div>
+                      <button
+                        onClick={handleSignOut}
+                        style={{
+                          width: '100%',
+                          padding: '10px 16px',
+                          background: 'transparent',
+                          border: 'none',
+                          borderRadius: 'var(--radius-sm)',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '10px',
+                          cursor: 'pointer',
+                          fontSize: '0.875rem',
+                          fontWeight: 500,
+                          color: 'var(--color-danger)',
+                          transition: 'background var(--transition-fast)',
+                        }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.background = 'var(--color-danger-dim)';
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.background = 'transparent';
+                        }}
+                      >
+                        <LogOut size={16} />
+                        Sign Out
+                      </button>
+                    </div>
+                  </>
+                )}
+              </div>
+            )}
           </div>
 
           {/* Mobile menu button */}
@@ -215,6 +380,79 @@ export default function Navbar() {
             <Plus size={16} />
             Start Debate
           </button>
+
+          {/* Mobile user info + sign out */}
+          {currentUser && (
+            <div
+              style={{
+                marginTop: 'var(--space-sm)',
+                paddingTop: 'var(--space-sm)',
+                borderTop: '1px solid var(--color-border)',
+              }}
+            >
+              <div
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '10px',
+                  padding: '10px 16px',
+                  marginBottom: 4,
+                }}
+              >
+                {currentUser.photoURL ? (
+                  <img
+                    src={currentUser.photoURL}
+                    alt={currentUser.displayName || 'User'}
+                    referrerPolicy="no-referrer"
+                    style={{ width: 32, height: 32, borderRadius: '50%', objectFit: 'cover' }}
+                  />
+                ) : (
+                  <div
+                    style={{
+                      width: 32,
+                      height: 32,
+                      borderRadius: '50%',
+                      background: 'var(--color-primary)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                    }}
+                  >
+                    <UserIcon size={16} color="#fff" />
+                  </div>
+                )}
+                <div>
+                  <p style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--color-text-primary)' }}>
+                    {currentUser.displayName || 'User'}
+                  </p>
+                  <p style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>
+                    {currentUser.email}
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={handleSignOut}
+                style={{
+                  width: '100%',
+                  padding: '12px 16px',
+                  background: 'transparent',
+                  border: 'none',
+                  borderRadius: 'var(--radius-md)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '10px',
+                  cursor: 'pointer',
+                  fontSize: '0.875rem',
+                  fontWeight: 500,
+                  color: 'var(--color-danger)',
+                  textAlign: 'left',
+                }}
+              >
+                <LogOut size={16} />
+                Sign Out
+              </button>
+            </div>
+          )}
         </div>
       )}
 

@@ -67,3 +67,48 @@ export const validateEvaluate = (req, res, next) => {
   req.body.response = response.trim();
   next();
 };
+
+export const validateRefine = (req, res, next) => {
+  const { topic, position, argument } = req.body;
+
+  if (!topic || typeof topic !== 'string' || topic.trim().length < 5) {
+    return res.status(400).json({ error: true, message: 'Topic is required.' });
+  }
+  if (!position || !VALID_POSITIONS.includes(position.toLowerCase())) {
+    return res.status(400).json({ error: true, message: `Position must be one of: ${VALID_POSITIONS.join(', ')}.` });
+  }
+  if (!argument || typeof argument !== 'string' || argument.trim().length < 20) {
+    return res.status(400).json({ error: true, message: 'Argument must be at least 20 characters.' });
+  }
+  if (argument.trim().length > 3000) {
+    return res.status(400).json({ error: true, message: 'Argument must be under 3000 characters.' });
+  }
+
+  req.body.topic = topic.trim();
+  req.body.position = position.toLowerCase();
+  req.body.argument = argument.trim();
+  next();
+};
+
+export const validateHint = (req, res, next) => {
+  const { topic, position, challenge, hintLevel } = req.body;
+
+  if (!topic || typeof topic !== 'string' || topic.trim().length < 5) {
+    return res.status(400).json({ error: true, message: 'Topic is required.' });
+  }
+  if (!position || !VALID_POSITIONS.includes(position.toLowerCase())) {
+    return res.status(400).json({ error: true, message: `Position must be one of: ${VALID_POSITIONS.join(', ')}.` });
+  }
+  if (!challenge || typeof challenge !== 'string' || challenge.trim().length < 5) {
+    return res.status(400).json({ error: true, message: 'Challenge is required.' });
+  }
+  if (hintLevel !== undefined && (typeof hintLevel !== 'number' || hintLevel < 1 || hintLevel > 3)) {
+    return res.status(400).json({ error: true, message: 'Hint level must be 1, 2, or 3.' });
+  }
+
+  req.body.topic = topic.trim();
+  req.body.position = position.toLowerCase();
+  req.body.challenge = challenge.trim();
+  req.body.hintLevel = hintLevel || 1;
+  next();
+};

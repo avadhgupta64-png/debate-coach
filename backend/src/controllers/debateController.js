@@ -44,3 +44,21 @@ export const complete = async (req, res, next) => {
     next(err);
   }
 };
+
+export const refine = async (req, res, next) => {
+  try {
+    const result = await ai.refineArgument(req.body);
+    res.json(result);
+  } catch (err) {
+    next(err);
+  }
+};
+
+export const hint = async (req, res, next) => {
+  try {
+    const result = await ai.generateHint(req.body);
+    res.json(result);
+  } catch (err) {
+    next(err);
+  }
+};

@@ -42,6 +42,16 @@ export function useDebateSession() {
     [withLoading]
   );
 
+  const refine = useCallback(
+    (params) => withLoading(() => api.refineArgument(params)),
+    [withLoading]
+  );
+
+  const getHint = useCallback(
+    (params) => withLoading(() => api.getHint(params)),
+    [withLoading]
+  );
+
   return {
     loading,
     error,
@@ -50,5 +60,7 @@ export function useDebateSession() {
     challenge,
     evaluate,
     complete,
+    refine,
+    getHint,
   };
 }

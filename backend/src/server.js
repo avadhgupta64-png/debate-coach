@@ -3,6 +3,10 @@ import express from 'express';
 import cors from 'cors';
 import debateRoutes from './routes/debate.js';
 import { errorHandler, notFound } from './middleware/errorHandler.js';
+import { initializeFirebaseAdmin } from './config/firebase.js';
+
+// Initialize Firebase Admin SDK before handling any requests
+initializeFirebaseAdmin();
 
 const app = express();
 const PORT = process.env.PORT || 5000;
