@@ -3,12 +3,14 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Target, Menu, X, Home, Plus, History, LogOut, User as UserIcon } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext.jsx';
 import { useGuest } from '../contexts/GuestContext.jsx';
+import { useSignInModal } from '../App.jsx';
 
 export default function Navbar() {
   const location = useLocation();
   const navigate = useNavigate();
   const { currentUser, signOut } = useAuth();
   const { isGuest, exitGuestMode } = useGuest();
+  const { openSignInModal } = useSignInModal();
   const [menuOpen, setMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [profileMenuOpen, setProfileMenuOpen] = useState(false);
@@ -157,7 +159,7 @@ export default function Navbar() {
             <button
               className="btn btn-primary btn-sm"
               style={{ marginLeft: 'var(--space-sm)' }}
-              onClick={() => navigate('/setup')}
+              onClick={() => currentUser ? navigate('/setup') : openSignInModal('/setup')}
             >
               <Plus size={14} />
               Start Debate
@@ -400,7 +402,7 @@ export default function Navbar() {
           <button
             className="btn btn-primary"
             style={{ marginTop: 'var(--space-sm)' }}
-            onClick={() => navigate('/setup')}
+            onClick={() => currentUser ? navigate('/setup') : openSignInModal('/setup')}
           >
             <Plus size={16} />
             Start Debate

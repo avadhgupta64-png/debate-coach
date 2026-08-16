@@ -119,16 +119,28 @@ function SignInModalProvider({ children }) {
 }
 
 // ─── Protected Route ──────────────────────────────────────────────────────────
-// Authenticated users → render children normally.
-// Guests → render children but the page itself can call openSignInModal()
-//   when a protected action is triggered. We do NOT hard-redirect guests
-//   so they can explore the UI.
-// Unauthenticated, non-guest → send to /login, preserving intended destination.
+// Authenticated users → full access.
+// Guests on action routes (/setup, /preparation, /practice, /results)
+//   → redirect to dashboard + pop sign-in modal.
+// Guests on browsing routes (/, /history) → allow (read-only view).
+// Unauthenticated non-guest → redirect to /login.
+
+const ACTION_ROUTES = ['/setup', '/preparation', '/practice', '/results'];
 
 function ProtectedRoute({ children }) {
   const { currentUser, loading } = useAuth();
   const { isGuest } = useGuest();
   const location = useLocation();
+  const { openSignInModal } = useSignInModal();
+
+  const isActionRoute = ACTION_ROUTES.some((p) => location.pathname.startsWith(p));
+
+  // Fire sign-in modal when a guest lands on an action route
+  useEffect(() => {
+    if (!loading && !currentUser && isGuest && isActionRoute) {
+      openSignInModal(location.pathname);
+    }
+  }, [loading, currentUser, isGuest, isActionRoute, location.pathname, openSignInModal]);
 
   if (loading) {
     return (
@@ -141,10 +153,15 @@ function ProtectedRoute({ children }) {
   // Authenticated — full access
   if (currentUser) return children;
 
-  // Guest — allow browsing; individual pages/actions call openSignInModal()
+  // Guest on action route — bounce to dashboard (modal pops over it)
+  if (isGuest && isActionRoute) {
+    return <Navigate to="/" replace />;
+  }
+
+  // Guest on browsing route — allow
   if (isGuest) return children;
 
-  // Neither — send to /login, remember where they wanted to go
+  // Neither — send to /login, remember intended destination
   return <Navigate to="/login" state={{ from: location }} replace />;
 }
 

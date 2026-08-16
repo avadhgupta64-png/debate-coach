@@ -16,6 +16,7 @@ import { useDebateHistory } from '../hooks/useDebateHistory.js';
 import { useDocumentTitle } from '../hooks/useDocumentTitle.js';
 import PositionBadge from '../components/PositionBadge.jsx';
 import { useAuth } from '../contexts/AuthContext.jsx';
+import { useSignInModal } from '../App.jsx';
 
 const DIFFICULTY_COLORS = {
   beginner: 'var(--color-success)',
@@ -81,9 +82,18 @@ function timeAgo(isoString) {
 export default function Dashboard() {
   const navigate = useNavigate();
   const { currentUser } = useAuth();
+  const { openSignInModal } = useSignInModal();
   const { history, stats } = useDebateHistory(currentUser?.uid);
   useDocumentTitle('Dashboard');
 
+  // Gate: guests must sign in before starting a debate
+  const startDebate = () => {
+    if (!currentUser) {
+      openSignInModal('/setup');
+    } else {
+      navigate('/setup');
+    }
+  };
 
   // Show the 3 most recent debates
   const recentDebates = history.slice(0, 3);
@@ -173,7 +183,7 @@ export default function Dashboard() {
               <div style={{ display: 'flex', gap: 'var(--space-md)', flexWrap: 'wrap' }}>
                 <button
                   className="btn btn-primary btn-lg"
-                  onClick={() => navigate('/setup')}
+                  onClick={startDebate}
                 >
                   <Swords size={18} />
                   Start a Debate
@@ -363,7 +373,7 @@ export default function Dashboard() {
               <p style={{ color: 'var(--color-text-muted)', fontSize: '0.875rem', marginBottom: 'var(--space-lg)' }}>
                 Complete your first session — your scores and history will appear here.
               </p>
-              <button className="btn btn-primary" onClick={() => navigate('/setup')}>
+              <button className="btn btn-primary" onClick={startDebate}>
                 <Swords size={16} />
                 Start Your First Debate
               </button>
@@ -384,7 +394,7 @@ export default function Dashboard() {
               <p style={{ color: 'var(--color-text-muted)', fontSize: '0.875rem', marginBottom: 'var(--space-md)' }}>
                 Ready to push further?
               </p>
-              <button className="btn btn-primary" onClick={() => navigate('/setup')}>
+              <button className="btn btn-primary" onClick={startDebate}>
                 <Swords size={16} />
                 Start a New Debate
               </button>
