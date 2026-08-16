@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Target,
@@ -21,6 +21,7 @@ import PositionBadge from '../components/PositionBadge.jsx';
 import { useAuth } from '../contexts/AuthContext.jsx';
 import { useSignInModal } from '../App.jsx';
 import { useDebate } from '../App.jsx';
+import HeroCatapultAnimation from '../components/HeroCatapultAnimation.jsx';
 
 const DIFFICULTY_COLORS = {
   beginner: 'var(--color-success)',
@@ -91,6 +92,13 @@ export default function Dashboard() {
   const { loadDraft, clearDraft, hasDraft } = useDraftDebate(currentUser?.uid);
   const { setConfig } = useDebate();
   useDocumentTitle('Dashboard');
+
+  // Randomise +100 badge offset once per mount/reload.
+  // Safe area: keep within ±50px around the target centre, avoid the text side.
+  const scoreOffset = useMemo(() => ({
+    x: Math.round((Math.random() - 0.5) * 80),   // −40 … +40 px
+    y: Math.round(Math.random() * -60 - 10),       // −10 … −70 px (always above target)
+  }), []);
 
   // Draft detection — re-evaluate on every render so it stays current
   const draft = hasDraft() ? loadDraft() : null;
@@ -275,8 +283,26 @@ export default function Dashboard() {
                     backgroundClip: 'text',
                   }}
                 >
-                  Own the room.
+                  {/* "Own the room" without its period — period becomes the projectile */}
+                  Own the room
                 </span>
+                {/*
+                  The period remains in the text flow so the sentence reads correctly.
+                  It is visually dimmed to hint it has "left" while remaining present for
+                  screen readers and text selection. The animation renders its own copy.
+                */}
+                <span
+                  aria-hidden="true"
+                  style={{
+                    background: 'linear-gradient(135deg, var(--color-primary), var(--color-accent))',
+                    WebkitBackgroundClip: 'text',
+                    WebkitTextFillColor: 'transparent',
+                    backgroundClip: 'text',
+                    opacity: 0.25,
+                  }}
+                >.</span>
+                {/* Screen-reader-only period so the sentence punctuation is correct */}
+                <span className="sr-only">.</span>
               </h1>
 
               <p
@@ -309,23 +335,17 @@ export default function Dashboard() {
               </div>
             </div>
 
-            {/* Visual accent */}
+            {/* Hero animation — catapult + target board */}
             <div
               className="hide-mobile"
               style={{
-                width: 220,
-                height: 220,
-                borderRadius: '50%',
-                background:
-                  'radial-gradient(circle at 40% 40%, rgba(79,142,247,0.12), rgba(124,106,245,0.06), transparent 70%)',
-                border: '1px solid rgba(79,142,247,0.12)',
+                flexShrink: 0,
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                flexShrink: 0,
               }}
             >
-              <Target size={64} color="rgba(79,142,247,0.3)" strokeWidth={1.2} />
+              <HeroCatapultAnimation scoreOffset={scoreOffset} />
             </div>
           </div>
         </div>
