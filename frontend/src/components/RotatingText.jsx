@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 
-const PHRASES = [
+const DEFAULT_PHRASES = [
   'Build stronger arguments.',
   'Challenge your reasoning.',
   'Sharpen your rebuttals.',
@@ -8,28 +8,40 @@ const PHRASES = [
   'Become a better debater.',
 ];
 
-// Timing constants (ms)
-// Total cycle: TRANSITION_IN + HOLD + TRANSITION_OUT ≈ 2800ms per phrase (~2.5–3s)
-const HOLD_DURATION = 1800;      // How long a phrase stays fully visible
-const TRANSITION_DURATION = 600; // Fade + slide in/out duration (500–700ms range)
+// Default timing (ms) — total cycle ~3s per phrase
+const DEFAULT_HOLD = 1800;       // How long a phrase stays fully visible
+const DEFAULT_TRANSITION = 600;  // Fade + slide in/out duration
 
 // Animation phases: entering → visible → leaving → (next) → ...
 const STYLE_MAP = {
-  entering: {
-    opacity: 0,
-    transform: 'translateY(10px)',
-  },
-  visible: {
-    opacity: 1,
-    transform: 'translateY(0)',
-  },
-  leaving: {
-    opacity: 0,
-    transform: 'translateY(-8px)',
-  },
+  entering: { opacity: 0, transform: 'translateY(10px)' },
+  visible:  { opacity: 1, transform: 'translateY(0)'    },
+  leaving:  { opacity: 0, transform: 'translateY(-8px)' },
 };
 
-export default function RotatingText({ style = {}, className = '' }) {
+/**
+ * RotatingText
+ *
+ * Displays one phrase at a time in a smooth cinematic fade+slide loop.
+ *
+ * Props:
+ *   phrases          — array of strings to rotate (defaults to tagline phrases)
+ *   holdDuration     — ms each phrase stays fully visible (default 1800)
+ *   transitionDuration — ms for each fade+slide transition (default 600)
+ *   textStyle        — extra style applied to the inner <span>
+ *   minHeight        — override the container's minHeight (default '3.2em')
+ *   style            — extra style applied to the outer container
+ *   className        — extra class applied to the outer container
+ */
+export default function RotatingText({
+  phrases = DEFAULT_PHRASES,
+  holdDuration = DEFAULT_HOLD,
+  transitionDuration = DEFAULT_TRANSITION,
+  textStyle = {},
+  minHeight = '3.2em',
+  style = {},
+  className = '',
+}) {
   const [index, setIndex] = useState(0);
   const [phase, setPhase] = useState('entering'); // 'entering' | 'visible' | 'leaving'
   const timers = useRef([]);
@@ -40,7 +52,7 @@ export default function RotatingText({ style = {}, className = '' }) {
       window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
   );
 
-  // Store timer refs so we can clean up on unmount
+  // Store timer IDs so we can clear them all on unmount
   const schedule = (fn, delay) => {
     const id = setTimeout(fn, delay);
     timers.current.push(id);
@@ -53,7 +65,7 @@ export default function RotatingText({ style = {}, className = '' }) {
     const runCycle = () => {
       if (cancelled) return;
 
-      // 1. Enter — phrase slides and fades in
+      // 1. Entering — phrase slides and fades in
       setPhase('entering');
 
       schedule(() => {
@@ -63,17 +75,17 @@ export default function RotatingText({ style = {}, className = '' }) {
 
         schedule(() => {
           if (cancelled) return;
-          // 3. Leave — phrase slides and fades out
+          // 3. Leaving — phrase slides and fades out
           setPhase('leaving');
 
           schedule(() => {
             if (cancelled) return;
             // 4. Advance to next phrase, restart cycle
-            setIndex((prev) => (prev + 1) % PHRASES.length);
+            setIndex((prev) => (prev + 1) % phrases.length);
             runCycle();
-          }, TRANSITION_DURATION);
-        }, HOLD_DURATION);
-      }, TRANSITION_DURATION);
+          }, transitionDuration);
+        }, holdDuration);
+      }, transitionDuration);
     };
 
     runCycle();
@@ -83,32 +95,34 @@ export default function RotatingText({ style = {}, className = '' }) {
       timers.current.forEach(clearTimeout);
       timers.current = [];
     };
-  }, []); // Run once on mount
+    // Re-run if the phrase list or timing changes (covers different instances)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [phrases, holdDuration, transitionDuration]);
 
-  // Reduced-motion: simple opacity fade, no transform
+  // Reduced-motion: opacity-only, no transform
+  const easing = `cubic-bezier(0.4, 0, 0.2, 1)`;
   const currentStyle = prefersReducedMotion.current
     ? {
         opacity: phase === 'visible' ? 1 : 0,
         transform: 'none',
-        transition: `opacity ${TRANSITION_DURATION}ms ease`,
+        transition: `opacity ${transitionDuration}ms ease`,
       }
     : {
         ...STYLE_MAP[phase],
-        transition: `opacity ${TRANSITION_DURATION}ms cubic-bezier(0.4, 0, 0.2, 1), transform ${TRANSITION_DURATION}ms cubic-bezier(0.4, 0, 0.2, 1)`,
+        transition: `opacity ${transitionDuration}ms ${easing}, transform ${transitionDuration}ms ${easing}`,
       };
 
   return (
     /*
-     * Outer container reserves a stable vertical area so the surrounding
-     * layout (logo, button) never shifts when phrases change length.
-     * minHeight covers the tallest phrase at ~1rem font size on narrow screens.
+     * Outer container reserves stable vertical space so surrounding layout
+     * (e.g. the Google login button) never shifts when phrase length changes.
      */
     <div
       aria-live="polite"
       aria-atomic="true"
       className={className}
       style={{
-        minHeight: '3.2em',
+        minHeight,
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
@@ -124,9 +138,10 @@ export default function RotatingText({ style = {}, className = '' }) {
           textAlign: 'center',
           willChange: 'opacity, transform',
           ...currentStyle,
+          ...textStyle,
         }}
       >
-        {PHRASES[index]}
+        {phrases[index]}
       </span>
     </div>
   );

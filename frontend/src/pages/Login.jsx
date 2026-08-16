@@ -178,7 +178,7 @@ export default function Login() {
             </p>
           </div>
 
-          {/* Features list */}
+          {/* Features list — rotating cinematic presentation */}
           <div style={{ marginTop: 'var(--space-2xl)' }}>
             <h3
               style={{
@@ -193,40 +193,34 @@ export default function Login() {
             >
               What you'll get
             </h3>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-sm)' }}>
-              {[
-                'AI-powered debate preparation and argument analysis',
-                'Live sparring with an adaptive AI opponent',
-                'Detailed performance feedback and scoring',
-                'Logical fallacy detection and coaching',
-                'Progress tracking across all your debates',
-              ].map((feature, i) => (
-                <div
-                  key={i}
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: 'var(--space-sm)',
-                    padding: '10px 16px',
-                    background: 'var(--color-surface-2)',
-                    border: '1px solid var(--color-border)',
-                    borderRadius: 'var(--radius-md)',
-                  }}
-                >
-                  <div
-                    style={{
-                      width: 6,
-                      height: 6,
-                      borderRadius: '50%',
-                      background: 'var(--color-primary)',
-                      flexShrink: 0,
-                    }}
-                  />
-                  <span style={{ fontSize: '0.875rem', color: 'var(--color-text-secondary)' }}>
-                    {feature}
-                  </span>
-                </div>
-              ))}
+            {/*
+              Outer card shell matches the original row styling (surface-2 bg,
+              border, rounded corners) so the section retains its visual weight.
+              RotatingText reserves a stable height so nothing below it shifts.
+            */}
+            <div
+              style={{
+                padding: '10px 16px',
+                background: 'var(--color-surface-2)',
+                border: '1px solid var(--color-border)',
+                borderRadius: 'var(--radius-md)',
+              }}
+            >
+              <RotatingText
+                phrases={[
+                  'AI-powered debate preparation and argument analysis',
+                  'Live sparring with an adaptive AI opponent',
+                  'Detailed performance feedback and scoring',
+                  'Logical fallacy detection and coaching',
+                  'Progress tracking across all your debates',
+                ]}
+                holdDuration={2000}
+                transitionDuration={550}
+                /* minHeight sized for two-line wrap on narrow mobile screens */
+                minHeight="4em"
+                textStyle={{ fontSize: '0.875rem' }}
+                style={{ justifyContent: 'flex-start' }}
+              />
             </div>
           </div>
         </div>
