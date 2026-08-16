@@ -82,7 +82,7 @@ export function deriveStats(history) {
   };
 
   let strongestSkill = '—';
-  let highestAvg = -1;
+  let highestAvg = 0; // only consider skills with a positive average score
   Object.entries(skillTotals).forEach(([skill, total]) => {
     const avg = total / skillCounts[skill];
     if (avg > highestAvg) {
