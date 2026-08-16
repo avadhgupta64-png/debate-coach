@@ -4,6 +4,7 @@ import { Target, AlertCircle } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext.jsx';
 import { useDocumentTitle } from '../hooks/useDocumentTitle.js';
 import LoadingSpinner from '../components/LoadingSpinner.jsx';
+import RotatingText from '../components/RotatingText.jsx';
 
 export default function Login() {
   const navigate = useNavigate();
@@ -68,9 +69,13 @@ export default function Login() {
             >
               Welcome to <span style={{ color: 'var(--color-primary)' }}>DebateCoach</span>
             </h1>
-            <p style={{ color: 'var(--color-text-secondary)', fontSize: '1rem' }}>
-              Sign in to start improving your debate skills with AI-powered coaching
-            </p>
+            <RotatingText
+              style={{
+                fontSize: '1rem',
+                maxWidth: 360,
+                margin: '0 auto',
+              }}
+            />
           </div>
 
           {/* Sign in card */}
