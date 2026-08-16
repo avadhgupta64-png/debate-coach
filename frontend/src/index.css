@@ -417,66 +417,6 @@ a:hover { color: var(--color-primary-hover); }
 }
 .page-fade { animation: fadeUp 0.35s ease forwards; }
 
-/* ─── Hero Catapult Animation ──────────────────────────────────────────────── */
-
-/* Projectile travels along an arc from catapult to bullseye */
-@keyframes heroLaunch {
-  0%   { transform: translate(0, 0) scale(1);     opacity: 1; }
-  30%  { transform: translate(35%, -60%) scale(1.15); opacity: 1; }
-  70%  { transform: translate(75%, -40%) scale(1.05); opacity: 1; }
-  88%  { transform: translate(97%, 8%) scale(0.9);  opacity: 1; }
-  100% { transform: translate(100%, 12%) scale(0.7); opacity: 0; }
-}
-
-/* Catapult arm swings up on launch */
-@keyframes heroCatapultArm {
-  0%   { transform: rotate(0deg); }
-  20%  { transform: rotate(-10deg); }
-  45%  { transform: rotate(-80deg); }
-  60%  { transform: rotate(-90deg); }
-  75%  { transform: rotate(-85deg); }
-  100% { transform: rotate(-88deg); }
-}
-
-/* Target ring ripples on impact */
-@keyframes heroImpact {
-  0%   { transform: scale(1);   opacity: 0; }
-  20%  { transform: scale(1.2); opacity: 0.8; }
-  60%  { transform: scale(1.5); opacity: 0.4; }
-  100% { transform: scale(2);   opacity: 0; }
-}
-
-/* +100 score floats upward and fades out */
-@keyframes heroScoreFloat {
-  0%   { transform: translateY(0)    scale(0.6); opacity: 0; }
-  15%  { transform: translateY(-4px) scale(1.15); opacity: 1; }
-  70%  { transform: translateY(-12px) scale(1);   opacity: 1; }
-  100% { transform: translateY(-26px) scale(0.9); opacity: 0; }
-}
-
-/* Subtle idle period glow before launch */
-@keyframes heroPeriodIdle {
-  0%, 100% { box-shadow: 0 0 6px 1px rgba(79,142,247,0.35); }
-  50%       { box-shadow: 0 0 14px 3px rgba(124,106,245,0.55); }
-}
-
-/* Catapult wheel spin on launch */
-@keyframes heroCatapultWheel {
-  0%   { transform: rotate(0deg); }
-  100% { transform: rotate(-360deg); }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  @keyframes heroLaunch         { 0%, 100% { opacity: 1; transform: none; } }
-  @keyframes heroCatapultArm    { 0%, 100% { transform: none; } }
-  @keyframes heroImpact         { 0%, 100% { opacity: 0; } }
-  @keyframes heroScoreFloat     { 0%, 100% { opacity: 1; transform: none; } }
-  @keyframes heroPeriodIdle     { 0%, 100% { box-shadow: none; } }
-  @keyframes heroCatapultWheel  { 0%, 100% { transform: none; } }
-}
-
-/* ─── End Hero Catapult Animation ───────────────────────────────────────────── */
-
 /* --- Misc utilities --- */
 .text-center { text-align: center; }
 .text-muted { color: var(--color-text-secondary); }
