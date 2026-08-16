@@ -2,11 +2,13 @@ import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Target, Menu, X, Home, Plus, History, LogOut, User as UserIcon } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext.jsx';
+import { useGuest } from '../contexts/GuestContext.jsx';
 
 export default function Navbar() {
   const location = useLocation();
   const navigate = useNavigate();
   const { currentUser, signOut } = useAuth();
+  const { isGuest, exitGuestMode } = useGuest();
   const [menuOpen, setMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [profileMenuOpen, setProfileMenuOpen] = useState(false);
@@ -160,6 +162,29 @@ export default function Navbar() {
               <Plus size={14} />
               Start Debate
             </button>
+
+            {/* Guest mode indicator — desktop */}
+            {!currentUser && isGuest && (
+              <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-sm)', marginLeft: 'var(--space-sm)' }}>
+                <span style={{
+                  fontSize: '0.75rem',
+                  fontWeight: 500,
+                  color: 'var(--color-text-muted)',
+                  padding: '4px 10px',
+                  background: 'var(--color-surface-2)',
+                  border: '1px solid var(--color-border)',
+                  borderRadius: 'var(--radius-full)',
+                }}>
+                  Exploring
+                </span>
+                <button
+                  onClick={() => { exitGuestMode(); navigate('/login'); }}
+                  className="btn btn-secondary btn-sm"
+                >
+                  Sign In
+                </button>
+              </div>
+            )}
 
             {/* User profile dropdown */}
             {currentUser && (
@@ -382,6 +407,28 @@ export default function Navbar() {
           </button>
 
           {/* Mobile user info + sign out */}
+          {!currentUser && isGuest && (
+            <div style={{
+              marginTop: 'var(--space-sm)',
+              paddingTop: 'var(--space-sm)',
+              borderTop: '1px solid var(--color-border)',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: 'var(--space-sm)',
+            }}>
+              <p style={{ fontSize: '0.8rem', color: 'var(--color-text-muted)', padding: '0 4px' }}>
+                You're exploring as a guest. Sign in to start practising and save your progress.
+              </p>
+              <button
+                onClick={() => { exitGuestMode(); navigate('/login'); }}
+                className="btn btn-secondary"
+              >
+                Sign In
+              </button>
+            </div>
+          )}
+
+          {/* Mobile authenticated user info + sign out */}
           {currentUser && (
             <div
               style={{

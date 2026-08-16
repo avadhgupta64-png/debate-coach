@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Target, AlertCircle } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext.jsx';
+import { useGuest } from '../contexts/GuestContext.jsx';
 import { useDocumentTitle } from '../hooks/useDocumentTitle.js';
 import LoadingSpinner from '../components/LoadingSpinner.jsx';
 import RotatingText from '../components/RotatingText.jsx';
@@ -10,6 +11,7 @@ export default function Login() {
   const navigate = useNavigate();
   const location = useLocation();
   const { signInWithGoogle, loading: authLoading } = useAuth();
+  const { enterGuestMode } = useGuest();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   useDocumentTitle('Sign In');
@@ -28,6 +30,11 @@ export default function Login() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleExploreAsGuest = () => {
+    enterGuestMode();
+    navigate('/', { replace: true });
   };
 
   if (authLoading) {
@@ -176,6 +183,45 @@ export default function Login() {
               By signing in, you agree to our Terms of Service and Privacy Policy.
               Your debate sessions and progress will be saved securely.
             </p>
+
+            {/* Guest mode CTA */}
+            <div style={{ marginTop: 'var(--space-lg)', borderTop: '1px solid var(--color-border)', paddingTop: 'var(--space-lg)' }}>
+              <button
+                onClick={handleExploreAsGuest}
+                disabled={loading}
+                style={{
+                  width: '100%',
+                  padding: '12px 24px',
+                  background: 'transparent',
+                  border: '1px solid var(--color-border)',
+                  borderRadius: 'var(--radius-md)',
+                  fontSize: '0.875rem',
+                  fontWeight: 500,
+                  color: 'var(--color-text-secondary)',
+                  cursor: loading ? 'not-allowed' : 'pointer',
+                  transition: 'all var(--transition-base)',
+                }}
+                onMouseEnter={(e) => {
+                  if (!loading) {
+                    e.currentTarget.style.background = 'var(--color-surface-2)';
+                    e.currentTarget.style.color = 'var(--color-text-primary)';
+                    e.currentTarget.style.borderColor = 'var(--color-border-hover)';
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (!loading) {
+                    e.currentTarget.style.background = 'transparent';
+                    e.currentTarget.style.color = 'var(--color-text-secondary)';
+                    e.currentTarget.style.borderColor = 'var(--color-border)';
+                  }
+                }}
+              >
+                Explore without signing in
+              </button>
+              <p style={{ fontSize: '0.72rem', color: 'var(--color-text-muted)', textAlign: 'center', marginTop: 'var(--space-sm)', lineHeight: 1.5 }}>
+                Browse the interface freely. Sign in when you're ready to start practising.
+              </p>
+            </div>
           </div>
 
           {/* Features list — rotating cinematic presentation */}

@@ -1,7 +1,9 @@
-import React, { createContext, useContext, useState, useCallback } from 'react';
+import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import Navbar from './components/Navbar.jsx';
 import Toast from './components/Toast.jsx';
+import SplashScreen from './components/SplashScreen.jsx';
+import SignInModal from './components/SignInModal.jsx';
 import Dashboard from './pages/Dashboard.jsx';
 import DebateSetup from './pages/DebateSetup.jsx';
 import Preparation from './pages/Preparation.jsx';
@@ -10,6 +12,7 @@ import Results from './pages/Results.jsx';
 import HistoryPage from './pages/History.jsx';
 import Login from './pages/Login.jsx';
 import { AuthProvider, useAuth } from './contexts/AuthContext.jsx';
+import { GuestProvider, useGuest } from './contexts/GuestContext.jsx';
 import LoadingSpinner from './components/LoadingSpinner.jsx';
 
 // ─── Debate Context ─────────────────────────────────────────────────────────
@@ -85,32 +88,64 @@ function ToastProvider({ children }) {
   );
 }
 
+// ─── SignInModal Context ──────────────────────────────────────────────────────
+// Allows any component deep in the tree to trigger the sign-in modal
+// while remembering where the user was trying to go.
+
+const SignInModalContext = createContext(null);
+export const useSignInModal = () => useContext(SignInModalContext);
+
+function SignInModalProvider({ children }) {
+  const [modalState, setModalState] = useState({ open: false, intendedPath: '/' });
+
+  const openSignInModal = useCallback((intendedPath = '/') => {
+    setModalState({ open: true, intendedPath });
+  }, []);
+
+  const closeSignInModal = useCallback(() => {
+    setModalState((prev) => ({ ...prev, open: false }));
+  }, []);
+
+  return (
+    <SignInModalContext.Provider value={{ openSignInModal, closeSignInModal }}>
+      {children}
+      <SignInModal
+        isOpen={modalState.open}
+        onClose={closeSignInModal}
+        intendedPath={modalState.intendedPath}
+      />
+    </SignInModalContext.Provider>
+  );
+}
+
 // ─── Protected Route ──────────────────────────────────────────────────────────
+// Authenticated users → render children normally.
+// Guests → render children but the page itself can call openSignInModal()
+//   when a protected action is triggered. We do NOT hard-redirect guests
+//   so they can explore the UI.
+// Unauthenticated, non-guest → send to /login, preserving intended destination.
 
 function ProtectedRoute({ children }) {
   const { currentUser, loading } = useAuth();
+  const { isGuest } = useGuest();
   const location = useLocation();
 
   if (loading) {
     return (
-      <div
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          minHeight: '80vh',
-        }}
-      >
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '80vh' }}>
         <LoadingSpinner message="Loading..." />
       </div>
     );
   }
 
-  if (!currentUser) {
-    return <Navigate to="/login" state={{ from: location }} replace />;
-  }
+  // Authenticated — full access
+  if (currentUser) return children;
 
-  return children;
+  // Guest — allow browsing; individual pages/actions call openSignInModal()
+  if (isGuest) return children;
+
+  // Neither — send to /login, remember where they wanted to go
+  return <Navigate to="/login" state={{ from: location }} replace />;
 }
 
 // ─── App Routes ───────────────────────────────────────────────────────────────
@@ -120,14 +155,7 @@ function AppRoutes() {
 
   if (loading) {
     return (
-      <div
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          minHeight: '80vh',
-        }}
-      >
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '80vh' }}>
         <LoadingSpinner message="Loading..." />
       </div>
     );
@@ -141,17 +169,45 @@ function AppRoutes() {
         element={currentUser ? <Navigate to="/" replace /> : <Login />}
       />
 
-      {/* Protected */}
-      <Route path="/" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
-      <Route path="/setup" element={<ProtectedRoute><DebateSetup /></ProtectedRoute>} />
+      {/* Protected — guests can browse, but protected actions show sign-in modal */}
+      <Route path="/"           element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+      <Route path="/setup"      element={<ProtectedRoute><DebateSetup /></ProtectedRoute>} />
       <Route path="/preparation" element={<ProtectedRoute><Preparation /></ProtectedRoute>} />
-      <Route path="/practice" element={<ProtectedRoute><PracticeMode /></ProtectedRoute>} />
-      <Route path="/results" element={<ProtectedRoute><Results /></ProtectedRoute>} />
-      <Route path="/history" element={<ProtectedRoute><HistoryPage /></ProtectedRoute>} />
+      <Route path="/practice"   element={<ProtectedRoute><PracticeMode /></ProtectedRoute>} />
+      <Route path="/results"    element={<ProtectedRoute><Results /></ProtectedRoute>} />
+      <Route path="/history"    element={<ProtectedRoute><HistoryPage /></ProtectedRoute>} />
 
       {/* Fallback */}
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
+  );
+}
+
+// ─── Splash Gate ─────────────────────────────────────────────────────────────
+// Shows the splash screen once per browser session (sessionStorage flag).
+// Once done, renders the main app shell.
+
+const SPLASH_KEY = 'dc_splash_seen';
+
+function SplashGate({ children }) {
+  const alreadySeen = typeof sessionStorage !== 'undefined'
+    ? sessionStorage.getItem(SPLASH_KEY) === '1'
+    : true;
+
+  const [splashDone, setSplashDone] = useState(alreadySeen);
+
+  const handleSplashDone = useCallback(() => {
+    sessionStorage.setItem(SPLASH_KEY, '1');
+    setSplashDone(true);
+  }, []);
+
+  return (
+    <>
+      {!splashDone && <SplashScreen onDone={handleSplashDone} />}
+      {/* Render children immediately so Firebase auth initialises in the
+          background; the splash sits on top via position:fixed + z-index. */}
+      {children}
+    </>
   );
 }
 
@@ -161,16 +217,22 @@ export default function App() {
   return (
     <BrowserRouter>
       <AuthProvider>
-        <ToastProvider>
-          <DebateProvider>
-            <div className="app-root" style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
-              <Navbar />
-              <main className="page-wrapper">
-                <AppRoutes />
-              </main>
-            </div>
-          </DebateProvider>
-        </ToastProvider>
+        <GuestProvider>
+          <ToastProvider>
+            <DebateProvider>
+              <SignInModalProvider>
+                <SplashGate>
+                  <div className="app-root" style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
+                    <Navbar />
+                    <main className="page-wrapper">
+                      <AppRoutes />
+                    </main>
+                  </div>
+                </SplashGate>
+              </SignInModalProvider>
+            </DebateProvider>
+          </ToastProvider>
+        </GuestProvider>
       </AuthProvider>
     </BrowserRouter>
   );
