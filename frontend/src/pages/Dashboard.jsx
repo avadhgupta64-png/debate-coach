@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Target,
@@ -99,6 +99,9 @@ export default function Dashboard() {
     x: Math.round((Math.random() - 0.5) * 80),   // −40 … +40 px
     y: Math.round(Math.random() * -60 - 10),       // −10 … −70 px (always above target)
   }), []);
+
+  // Ref for the period span — the animation measures its position to fly from
+  const periodRef = useRef(null);
 
   // Draft detection — re-evaluate on every render so it stays current
   const draft = hasDraft() ? loadDraft() : null;
@@ -283,22 +286,22 @@ export default function Dashboard() {
                     backgroundClip: 'text',
                   }}
                 >
-                  {/* "Own the room" without its period — period becomes the projectile */}
                   Own the room
                 </span>
                 {/*
-                  The period remains in the text flow so the sentence reads correctly.
-                  It is visually dimmed to hint it has "left" while remaining present for
-                  screen readers and text selection. The animation renders its own copy.
+                  The period is the projectile. The animation hides it via
+                  periodRef.current.style.visibility = 'hidden' while a portal
+                  clone flies across the screen. Full opacity initially.
                 */}
                 <span
+                  ref={periodRef}
                   aria-hidden="true"
                   style={{
                     background: 'linear-gradient(135deg, var(--color-primary), var(--color-accent))',
                     WebkitBackgroundClip: 'text',
                     WebkitTextFillColor: 'transparent',
                     backgroundClip: 'text',
-                    opacity: 0.25,
+                    display: 'inline-block',
                   }}
                 >.</span>
                 {/* Screen-reader-only period so the sentence punctuation is correct */}
@@ -345,7 +348,7 @@ export default function Dashboard() {
                 justifyContent: 'center',
               }}
             >
-              <HeroCatapultAnimation scoreOffset={scoreOffset} />
+              <HeroCatapultAnimation scoreOffset={scoreOffset} periodRef={periodRef} />
             </div>
           </div>
         </div>
