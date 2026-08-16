@@ -89,22 +89,21 @@ export default function Dashboard() {
   const { currentUser } = useAuth();
   const { openSignInModal } = useSignInModal();
   const { history, stats } = useDebateHistory(currentUser?.uid);
-  const { loadDraft, clearDraft, hasDraft } = useDraftDebate(currentUser?.uid);
+  const { loadLatestDraft, clearDraft, hasDraft } = useDraftDebate(currentUser?.uid);
   const { setConfig } = useDebate();
   useDocumentTitle('Dashboard');
 
   // Randomise +100 badge offset once per mount/reload.
-  // Safe area: keep within ±50px around the target centre, avoid the text side.
   const scoreOffset = useMemo(() => ({
-    x: Math.round((Math.random() - 0.5) * 80),   // −40 … +40 px
-    y: Math.round(Math.random() * -60 - 10),       // −10 … −70 px (always above target)
+    x: Math.round((Math.random() - 0.5) * 80),
+    y: Math.round(Math.random() * -60 - 10),
   }), []);
 
   // Ref for the period span — the animation measures its position to fly from
   const periodRef = useRef(null);
 
-  // Draft detection — re-evaluate on every render so it stays current
-  const draft = hasDraft() ? loadDraft() : null;
+  // Draft detection — pick the most recent draft for the resume banner
+  const draft = hasDraft() ? loadLatestDraft() : null;
 
   // Gate: guests must sign in before starting a debate
   const startDebate = () => {
@@ -123,8 +122,7 @@ export default function Dashboard() {
   };
 
   const discardDraft = () => {
-    clearDraft();
-    // Force re-render by navigating to same page
+    if (draft?.draftId) clearDraft(draft.draftId);
     navigate('/', { replace: true });
   };
 

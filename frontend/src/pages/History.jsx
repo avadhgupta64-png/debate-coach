@@ -16,13 +16,17 @@ import {
   Clock,
   Target,
   BarChart2,
+  PlayCircle,
+  FileText,
 } from 'lucide-react';
 import { useDebateHistory } from '../hooks/useDebateHistory.js';
+import { useDraftDebate } from '../hooks/useDraftDebate.js';
 import { useDocumentTitle } from '../hooks/useDocumentTitle.js';
 import PositionBadge from '../components/PositionBadge.jsx';
 import ScoreBar from '../components/ScoreBar.jsx';
 import { SCORE_LABELS } from '../data/mockData.js';
 import { useAuth } from '../contexts/AuthContext.jsx';
+import { useDebate } from '../App.jsx';
 
 const DIFFICULTY_COLORS = {
   beginner: 'var(--color-success)',
@@ -580,6 +584,8 @@ export default function HistoryPage() {
   const navigate = useNavigate();
   const { currentUser } = useAuth();
   const { history, stats, clearHistory } = useDebateHistory(currentUser?.uid);
+  const { drafts, clearDraft } = useDraftDebate(currentUser?.uid);
+  const { setConfig } = useDebate();
   const [confirmClear, setConfirmClear] = useState(false);
   useDocumentTitle('Debate History');
 
@@ -591,6 +597,11 @@ export default function HistoryPage() {
     }
     clearHistory();
     setConfirmClear(false);
+  };
+
+  const resumeDraft = (draft) => {
+    setConfig(draft.config);
+    navigate('/practice');
   };
 
   return (
@@ -674,6 +685,134 @@ export default function HistoryPage() {
               </button>
             </div>
           </div>
+
+          {/* In-progress drafts */}
+          {drafts.length > 0 && (
+            <div style={{ marginBottom: 'var(--space-xl)' }}>
+              <div
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 8,
+                  marginBottom: 'var(--space-md)',
+                }}
+              >
+                <FileText size={14} color="var(--color-warning)" />
+                <span
+                  style={{
+                    fontSize: '0.78rem',
+                    fontWeight: 700,
+                    color: 'var(--color-text-muted)',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.08em',
+                  }}
+                >
+                  In Progress · {drafts.length} draft{drafts.length !== 1 ? 's' : ''}
+                </span>
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-sm)' }}>
+                {drafts.map((draft) => (
+                  <div
+                    key={draft.draftId}
+                    className="card"
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 'var(--space-md)',
+                      padding: 'var(--space-md) var(--space-lg)',
+                      borderLeft: '3px solid var(--color-warning)',
+                      flexWrap: 'wrap',
+                    }}
+                  >
+                    {/* Icon */}
+                    <div
+                      style={{
+                        width: 36,
+                        height: 36,
+                        borderRadius: 'var(--radius-md)',
+                        background: 'rgba(245,158,11,0.1)',
+                        border: '1px solid rgba(245,158,11,0.25)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        flexShrink: 0,
+                      }}
+                    >
+                      <PlayCircle size={18} color="var(--color-warning)" />
+                    </div>
+
+                    {/* Info */}
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <p
+                        style={{
+                          fontWeight: 600,
+                          fontSize: '0.9rem',
+                          color: 'var(--color-text-primary)',
+                          marginBottom: 2,
+                          whiteSpace: 'nowrap',
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis',
+                        }}
+                      >
+                        {draft.config?.topic || 'Untitled debate'}
+                      </p>
+                      <div
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: 'var(--space-sm)',
+                          flexWrap: 'wrap',
+                        }}
+                      >
+                        {draft.config?.position && (
+                          <PositionBadge position={draft.config.position} />
+                        )}
+                        <span
+                          style={{ fontSize: '0.78rem', color: 'var(--color-text-muted)' }}
+                        >
+                          Round {draft.round ?? 1} of 5
+                        </span>
+                        {draft.savedAt && (
+                          <span
+                            style={{
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: 4,
+                              fontSize: '0.75rem',
+                              color: 'var(--color-text-muted)',
+                            }}
+                          >
+                            <Clock size={11} />
+                            {timeAgo(draft.savedAt)}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Actions */}
+                    <div style={{ display: 'flex', gap: 'var(--space-sm)', flexShrink: 0 }}>
+                      <button
+                        className="btn btn-ghost btn-sm"
+                        style={{ color: 'var(--color-text-muted)' }}
+                        onClick={() => clearDraft(draft.draftId)}
+                        title="Discard draft"
+                      >
+                        <Trash2 size={14} />
+                        Discard
+                      </button>
+                      <button
+                        className="btn btn-primary btn-sm"
+                        onClick={() => resumeDraft(draft)}
+                      >
+                        <PlayCircle size={14} />
+                        Resume
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
 
           {/* Summary stats bar */}
           {history.length > 0 && (

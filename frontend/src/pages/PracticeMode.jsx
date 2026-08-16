@@ -190,7 +190,7 @@ export default function PracticeMode() {
   const { addToast } = useToast();
   const { currentUser } = useAuth();
   const { loading, error, challenge, evaluate, complete, getHint, clearError } = useDebateSession();
-  const { saveDraft, loadDraft, clearDraft } = useDraftDebate(currentUser?.uid);
+  const { saveDraft, loadDraft, loadLatestDraft, clearDraft, newDraftId } = useDraftDebate(currentUser?.uid);
 
   const config = debate.config;
   useDocumentTitle('Practice Debate');
@@ -213,22 +213,18 @@ export default function PracticeMode() {
 
   // Track whether we restored from a draft (skip fetchFirstChallenge in that case)
   const restoredFromDraft = useRef(false);
+  // Stable ID for this session's draft — generated once and reused for all saves
+  const draftIdRef = useRef(null);
 
   const responseRef = useRef(null);
   const chatBottomRef = useRef(null);
 
   useEffect(() => {
     // ── Draft restore ─────────────────────────────────────────────────────────
-    // If the user left mid-session, a draft may have been saved. Restore it so
-    // they continue from where they stopped rather than starting over.
-    const draft = loadDraft();
+    const draft = loadLatestDraft();
     if (draft && draft.config) {
-      // Restore config into DebateContext if it isn't already set (e.g. user
-      // navigated directly to /practice after a page refresh).
-      if (!config) {
-        setConfig(draft.config);
-      }
-      // Restore all session state
+      if (!config) setConfig(draft.config);
+      draftIdRef.current = draft.draftId;   // reuse the same draft slot
       setRound(draft.round ?? 1);
       setCurrentChallenge(draft.currentChallenge ?? '');
       setHistory(draft.history ?? []);
@@ -244,6 +240,7 @@ export default function PracticeMode() {
 
     // ── Normal start ──────────────────────────────────────────────────────────
     if (!config) { navigate('/setup'); return; }
+    draftIdRef.current = newDraftId();   // fresh ID for this new session
     fetchFirstChallenge();
   }, []);
 
@@ -252,14 +249,12 @@ export default function PracticeMode() {
   }, [history, phase]);
 
   // ── Auto-save draft on every meaningful state change ──────────────────────
-  // Only save when there is an active challenge (i.e. the session has started
-  // and at least one AI challenge has been received). We do NOT save during
-  // the very first loading phase to avoid writing an empty draft.
   useEffect(() => {
     if (!config) return;
-    if (phase === 'loading' && round === 1 && history.length === 0) return; // nothing yet
-    if (phase === 'done') return; // session finished — clearDraft handles this
-    saveDraft({
+    if (phase === 'loading' && round === 1 && history.length === 0) return;
+    if (phase === 'done') return;
+    if (!draftIdRef.current) return;
+    saveDraft(draftIdRef.current, {
       config,
       round,
       currentChallenge,
@@ -367,7 +362,7 @@ export default function PracticeMode() {
 
   const finishDebate = async (scores, responses, finalHistory) => {
     setPhase('loading');
-    clearDraft(); // session ending — remove the draft
+    clearDraft(draftIdRef.current); // session ending — remove this session's draft
     try {
       const result = await complete({
         topic: config.topic,
@@ -388,8 +383,10 @@ export default function PracticeMode() {
   };
 
   const handleSkip = async () => {
-    // Record a 0 score for the skipped round so the final average is accurate
-    const newScores = [...allScores, 0];
+    // Record a neutral 5/10 for the skipped round (not 0, which would
+    // unfairly drag the average down to near-zero for a single skip).
+    const SKIP_SCORE = 5;
+    const newScores = [...allScores, SKIP_SCORE];
     const newResponses = [...allResponses, '[skipped]'];
 
     // Add the skipped challenge to history so the transcript is complete
@@ -459,8 +456,8 @@ export default function PracticeMode() {
             <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-sm)', flexWrap: 'wrap' }}>
               <button className="btn btn-ghost btn-sm" onClick={() => {
                 // Save a draft so the user can resume from Dashboard
-                if (config && currentChallenge) {
-                  saveDraft({ config, round, currentChallenge, history, allScores, allResponses, totalHintsUsed });
+                if (config && currentChallenge && draftIdRef.current) {
+                  saveDraft(draftIdRef.current, { config, round, currentChallenge, history, allScores, allResponses, totalHintsUsed });
                   addToast('Draft saved — resume from the Dashboard anytime.', 'info');
                 }
                 navigate('/');
