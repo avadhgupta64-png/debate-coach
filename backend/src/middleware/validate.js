@@ -3,7 +3,7 @@ const VALID_DIFFICULTIES = ['beginner', 'intermediate', 'advanced', 'competition
 const VALID_DEBATE_TYPES = ['school', 'mun', 'parliamentary', 'casual'];
 
 export const validateGenerate = (req, res, next) => {
-  const { topic, position, difficulty, debateType } = req.body;
+  const { topic, position, difficulty, debateType, previousArgsSummary } = req.body;
 
   if (!topic || typeof topic !== 'string' || topic.trim().length < 5) {
     return res.status(400).json({ error: true, message: 'Topic must be at least 5 characters.' });
@@ -25,6 +25,16 @@ export const validateGenerate = (req, res, next) => {
   req.body.position = position.toLowerCase();
   req.body.difficulty = difficulty.toLowerCase();
   req.body.debateType = debateType.toLowerCase();
+
+  // Optional: compact summary of previous argument titles to prevent repetition
+  if (previousArgsSummary !== undefined) {
+    if (typeof previousArgsSummary !== 'string') {
+      return res.status(400).json({ error: true, message: 'previousArgsSummary must be a string.' });
+    }
+    // Truncate to prevent prompt injection via a very long summary
+    req.body.previousArgsSummary = previousArgsSummary.slice(0, 500);
+  }
+
   next();
 };
 

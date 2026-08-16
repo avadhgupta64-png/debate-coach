@@ -270,14 +270,38 @@ export default function Preparation() {
 
   useEffect(() => {
     if (!config) { navigate('/setup'); return; }
-    if (debate.preparation) { setData(debate.preparation); return; }
-    fetchPreparation();
+    // Always fetch fresh preparation on mount — never reuse stale context state.
+    // debate.preparation may hold a previous result from a prior navigation; we
+    // clear it immediately and request a new one to guarantee variety.
+    fetchPreparation(null);
   }, []);
 
-  const fetchPreparation = async () => {
+  /**
+   * Fetch new preparation from the backend.
+   * @param {string|null} previousPrep - The previously displayed preparation data,
+   *   used to build a summary sent to the backend so it avoids repeating arguments.
+   */
+  const fetchPreparation = async (previousPrep) => {
     if (!config) return;
+
+    // Build a compact summary of the previous arguments so the backend can avoid
+    // repeating them. This is passed as previousArgsSummary in the request body.
+    let previousArgsSummary = null;
+    if (previousPrep && Array.isArray(previousPrep.arguments) && previousPrep.arguments.length > 0) {
+      previousArgsSummary = previousPrep.arguments
+        .map((a) => a.title)
+        .filter(Boolean)
+        .join(', ');
+    }
+
+    // Clear stale preparation from context so a back-navigation never reuses it.
+    setPreparation(null);
+
     try {
-      const result = await generate(config);
+      const payload = { ...config };
+      if (previousArgsSummary) payload.previousArgsSummary = previousArgsSummary;
+
+      const result = await generate(payload);
       setData(result);
       setPreparation(result);
     } catch (err) {
@@ -309,7 +333,7 @@ export default function Preparation() {
               </div>
             </div>
             <div style={{ display: 'flex', gap: 'var(--space-sm)', flexWrap: 'wrap' }}>
-              <button className="btn btn-secondary" onClick={() => { setData(null); fetchPreparation(); }} disabled={loading}>
+              <button className="btn btn-secondary" onClick={() => { const prev = data; setData(null); fetchPreparation(prev); }} disabled={loading}>
                 <RefreshCw size={16} className={loading ? 'spin' : ''} /> Regenerate
               </button>
               <button className="btn btn-primary" onClick={() => navigate('/practice')} disabled={!data || loading}>
@@ -327,7 +351,7 @@ export default function Preparation() {
                 <p style={{ color: 'var(--color-danger)', fontWeight: 600, marginBottom: 4 }}>Failed to load preparation</p>
                 <p style={{ color: 'var(--color-text-secondary)', fontSize: '0.875rem' }}>{error}</p>
               </div>
-              <button className="btn btn-secondary btn-sm" onClick={() => { setData(null); fetchPreparation(); }}>Retry</button>
+              <button className="btn btn-secondary btn-sm" onClick={() => { setData(null); fetchPreparation(null); }}>Retry</button>
             </div>
           )}
 

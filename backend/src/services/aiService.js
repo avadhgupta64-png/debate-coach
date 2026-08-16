@@ -35,6 +35,40 @@ const ARGUMENT_ANGLES = [
   'ethical and philosophical principles',
 ];
 
+const ARGUMENT_FRAMEWORKS = [
+  'utilitarian cost-benefit analysis (greatest good for greatest number)',
+  'rights-based deontological framing (duties, rights, moral constraints)',
+  'virtue ethics and character-based reasoning',
+  'social contract theory and collective obligation',
+  'pragmatic incrementalism (what actually works in practice)',
+  'structural-systemic analysis (root causes and institutional forces)',
+  'comparative policy analysis (what other jurisdictions have done)',
+  'intergenerational equity and long-run consequences',
+  'intersectionality and differential impact across social groups',
+  'precautionary principle and management of uncertainty',
+];
+
+const STAKEHOLDER_LENSES = [
+  'frontline workers and labour market participants',
+  'children and future generations',
+  'small business owners and entrepreneurs',
+  'marginalised and low-income communities',
+  'governments and public institutions',
+  'civil society organisations and NGOs',
+  'global south nations and developing economies',
+  'consumers and ordinary citizens',
+  'researchers and academic experts',
+  'minority and indigenous communities',
+];
+
+const CAUSAL_CHAINS = [
+  'immediate direct effects → second-order ripple effects → long-run equilibrium',
+  'incentive structures → behavioural responses → aggregate outcomes',
+  'historical precedent → pattern recognition → likely trajectory',
+  'institutional constraints → implementation gaps → real-world vs theoretical outcomes',
+  'power dynamics → distributional effects → winners and losers',
+];
+
 const CHALLENGE_STYLES = [
   'Use pointed rhetorical questions to put the debater on the back foot.',
   'Lead with a sharp counter-statistic or empirical challenge.',
@@ -61,56 +95,202 @@ const pick = (arr) => arr[Math.floor(Math.random() * arr.length)];
 /** Produces a variant descriptor injected into AI prompts */
 const sessionVariant = () => ({
   angle: pick(ARGUMENT_ANGLES),
+  framework: pick(ARGUMENT_FRAMEWORKS),
+  stakeholderLens: pick(STAKEHOLDER_LENSES),
+  causalChain: pick(CAUSAL_CHAINS),
   challengeStyle: pick(CHALLENGE_STYLES),
   evidenceEmphasis: pick(EVIDENCE_EMPHASIS),
-  seed: Math.floor(Math.random() * 100000),
+  nonce: `${Date.now()}-${Math.floor(Math.random() * 1e9)}`,
 });
 
 // ---------------------------------------------------------------------------
 // DEMO MODE responses — returned when no AI key is configured
 // ---------------------------------------------------------------------------
 
-const DEMO_GENERATE = (topic, position, difficulty) => ({
-  topic,
-  position,
-  difficulty,
-  motionInterpretation: `This motion asks whether society should adopt a stance ${position === 'for' ? 'in favour of' : 'against'} "${topic}". At its core, it centres on questions of practicality, rights, and societal impact.`,
-  keyDefinitions: [
-    { term: 'Key stakeholders', definition: 'The individuals, institutions, and communities directly affected by this debate.' },
-    { term: 'Status quo', definition: 'The current state of affairs against which this motion is evaluated.' },
-  ],
-  assumptions: [
-    'That implementation is feasible within current institutional frameworks',
-    'That the harms/benefits described are measurable and attributable',
-  ],
-  potentialWeaknesses: [
-    'The evidence base may be contested by expert communities in this field',
-    'This position may disproportionately benefit some groups over others',
-  ],
-  arguments: [
-    { title: 'Economic Efficiency', explanation: `Supporting the ${position} side aligns with principles of economic efficiency and resource allocation.`, supporting: 'Studies in policy analysis consistently show structured approaches outperform ad hoc solutions.', strength: 'strong' },
-    { title: 'Individual Autonomy', explanation: `From a rights perspective, the ${position} position respects personal agency and individual decision-making.`, supporting: 'Liberal democratic theory places individual liberty as a cornerstone of just governance.', strength: 'strong' },
-    { title: 'Long-term Social Benefit', explanation: `Looking at long-term societal impact, the ${position} stance creates sustainable positive change.`, supporting: 'Cost-benefit analysis frameworks and intergenerational equity models support this view.', strength: 'moderate' },
-  ],
-  counterarguments: [
-    { title: 'Implementation Costs', explanation: `The practical costs of implementing policies aligned with the ${position} position may be prohibitively high.`, strength: 'moderate' },
-    { title: 'Unintended Consequences', explanation: `Well-intentioned policies sometimes produce unforeseen negative outcomes.`, strength: 'strong' },
-    { title: 'Equity Concerns', explanation: `This position may disproportionately benefit already-privileged groups.`, strength: 'moderate' },
-  ],
-  rebuttals: [
-    { against: 'Implementation Costs', rebuttal: 'A phased approach with targeted support addresses cost concerns directly. Long-term costs of inaction are far greater.' },
-    { against: 'Unintended Consequences', rebuttal: 'Pilot programs and adaptive policy design substantially reduce this risk. Historical examples show iterative approaches succeed.' },
-    { against: 'Equity Concerns', rebuttal: 'Equity provisions can be strengthened within the policy framework. This objection argues for reform, not rejection.' },
-  ],
-  evidence: [
-    { title: 'Policy Precedent', content: `Similar frameworks adopted in multiple jurisdictions have documented positive outcomes.`, label: 'Example — verify before using', type: 'example' },
-    { title: 'Expert Consensus', content: `Academic literature tends to support structured, evidence-based approaches in this domain.`, label: 'Example — verify before using', type: 'example' },
-  ],
-  openingGuidance: `Open by clearly defining your position on "${topic}". Establish the key terms, state your strongest argument first, and signal the overall structure of your case. Your opening should be confident and set the framing for the entire debate.`,
-  closingGuidance: `Close by summarising your three strongest points, directly addressing the most powerful opposing argument, and ending with a clear, memorable statement of why your side should prevail. Do not introduce new arguments in closing.`,
-  debateStrategy: `For this motion at ${difficulty} level: focus on concrete examples over abstract principles. Acknowledge the strongest opposing argument early and counter it — this builds credibility. If pushed on a weak point, concede the minor point and pivot to the bigger picture.`,
-  mode: 'demo',
-});
+// ---------------------------------------------------------------------------
+// Demo mode argument pools — multiple variants to avoid identical responses
+// ---------------------------------------------------------------------------
+
+const DEMO_ARGUMENT_SETS = [
+  // Variant A: Economic & structural framing
+  (position) => ({
+    arguments: [
+      { title: 'Economic Efficiency', explanation: `The ${position} position aligns with principles of resource allocation and productive efficiency. Markets and institutions function better when incentives are correctly aligned with outcomes.`, supporting: 'Policy economics research consistently shows structured, evidence-based interventions outperform ad hoc approaches in cost-effectiveness over time.', strength: 'strong' },
+      { title: 'Systemic Institutional Change', explanation: `Addressing this issue requires structural reform, not piecemeal fixes. The ${position} stance enables the kind of deep institutional change that produces durable improvements.`, supporting: 'Comparative studies across OECD nations show nations that took bold structural positions in analogous debates achieved better long-term outcomes.', strength: 'strong' },
+      { title: 'Long-term Cost Savings', explanation: `Short-term investment in the ${position} direction prevents far greater future costs. The compounding effect of early action is well-documented in analogous policy domains.`, supporting: 'Intergenerational cost modelling regularly shows upfront reform costs are dwarfed by the avoided costs of continued inaction.', strength: 'moderate' },
+    ],
+    counterarguments: [
+      { title: 'Implementation Costs', explanation: `The practical costs of implementing policies aligned with the ${position} position may be prohibitively high, especially for smaller institutions and developing economies.`, strength: 'moderate' },
+      { title: 'Market Distortion Risk', explanation: `Intervention in this domain risks creating market distortions that produce inefficiencies greater than the problem being solved.`, strength: 'strong' },
+      { title: 'Regulatory Capture', explanation: `Once new regulatory frameworks are created, they tend to be captured by the most powerful stakeholders, producing outcomes opposite to the stated intent.`, strength: 'moderate' },
+    ],
+    rebuttals: [
+      { against: 'Implementation Costs', rebuttal: 'A phased approach with targeted institutional support directly addresses this concern. The long-run costs of inaction consistently exceed upfront transition costs in comparable domains.' },
+      { against: 'Market Distortion Risk', rebuttal: 'Well-designed policy incorporates market mechanisms rather than overriding them. The empirical record of carefully designed interventions shows distortion fears are often overstated.' },
+      { against: 'Regulatory Capture', rebuttal: 'Transparency requirements, sunset clauses, and independent oversight boards are proven tools to prevent capture. This objection argues for better governance, not for inaction.' },
+    ],
+    evidence: [
+      { title: 'OECD Policy Comparison', content: 'Nations that adopted analogous structural positions show measurably better outcomes across key indicators compared to those that did not.', label: 'Example — verify before using', type: 'example' },
+      { title: 'Cost-Benefit Analysis Research', content: 'Academic literature on comparable policy interventions consistently finds positive net present value when long-term benefits are properly discounted.', label: 'Example — verify before using', type: 'example' },
+    ],
+  }),
+  // Variant B: Rights & justice framing
+  (position) => ({
+    arguments: [
+      { title: 'Individual Rights and Autonomy', explanation: `The ${position} position is grounded in a fundamental respect for individual agency. People have the right to make choices that affect their own lives, and this motion engages directly with where that line should be drawn.`, supporting: 'Liberal political philosophy from Locke through Rawls consistently affirms that restricting autonomy requires a strong justification — the burden is on those who would limit freedom.', strength: 'strong' },
+      { title: 'Distributive Justice', explanation: `The current status quo creates systematic advantages for already-privileged groups. The ${position} stance corrects a structural injustice that compounds over generations.`, supporting: 'Rawlsian difference principle: a just arrangement must benefit the least advantaged members of society. The ${position} position passes this test; the opposing position does not.', strength: 'strong' },
+      { title: 'Democratic Legitimacy', explanation: `The ${position} position reflects what citizens in comparable democracies have chosen when given a clear mandate. This is not a technocratic imposition — it represents democratic will expressed over time.`, supporting: 'Survey data and electoral outcomes across multiple democracies consistently show majority support for positions analogous to this one.', strength: 'moderate' },
+    ],
+    counterarguments: [
+      { title: 'Competing Rights Claims', explanation: `The rights claimed on the ${position} side come into direct conflict with equally legitimate rights on the opposing side. The motion presents a false binary that ignores this tension.`, strength: 'strong' },
+      { title: 'Tyranny of the Majority', explanation: `Democratic majorities have historically endorsed positions that violated minority rights. Popularity does not equal justice, and this motion may be an example of that pattern.`, strength: 'moderate' },
+      { title: 'Unintended Discrimination', explanation: `Policies designed with the best intentions often produce discriminatory outcomes in practice due to enforcement asymmetries and institutional biases.`, strength: 'moderate' },
+    ],
+    rebuttals: [
+      { against: 'Competing Rights Claims', rebuttal: 'Not all rights claims are equal — the harm principle allows us to rank competing claims by the magnitude and directness of impact. On that basis, the ${position} position is clearly superior.' },
+      { against: 'Tyranny of the Majority', rebuttal: 'This motion includes explicit protections for minority positions. The objection describes a risk that the policy design specifically guards against.' },
+      { against: 'Unintended Discrimination', rebuttal: 'Equity audits, community consultation, and iterative policy review are standard tools to detect and correct discriminatory application. This risk is manageable, not a reason to reject the motion.' },
+    ],
+    evidence: [
+      { title: 'Rights Jurisprudence', content: 'Constitutional courts in comparable jurisdictions have consistently held that positions analogous to this one are compatible with fundamental rights frameworks.', label: 'Example — verify before using', type: 'example' },
+      { title: 'Social Mobility Research', content: 'Longitudinal studies show societies that adopt the ${position} stance exhibit greater social mobility and lower inequality over generational timescales.', label: 'Example — verify before using', type: 'example' },
+    ],
+  }),
+  // Variant C: Public health, environment & long-run sustainability framing
+  (position) => ({
+    arguments: [
+      { title: 'Public Health and Wellbeing', explanation: `The ${position} position produces measurable improvements in population health and wellbeing outcomes. This is not an abstract claim — it is supported by outcome data from comparable interventions.`, supporting: 'Public health meta-analyses consistently find that proactive, preventive approaches in analogous domains outperform reactive strategies by a factor of 3-5 in cost-effectiveness.', strength: 'strong' },
+      { title: 'Environmental Sustainability', explanation: `The long-run sustainability of current practices depends on choices made today. The ${position} stance is the only approach that is compatible with long-term environmental stability.`, supporting: 'IPCC modelling and environmental economics research both support early, decisive action over delayed adjustment — the costs of waiting grow non-linearly.', strength: 'strong' },
+      { title: 'Intergenerational Responsibility', explanation: `Decisions made today will constrain the choices available to future generations. The ${position} position takes this responsibility seriously; the opposing side discounts the future at an ethically unjustifiable rate.`, supporting: 'Stern Review and follow-up environmental economics scholarship establish that a near-zero social discount rate is the ethically appropriate standard for intergenerational decisions.', strength: 'moderate' },
+    ],
+    counterarguments: [
+      { title: 'Economic Disruption', explanation: `Moving in the ${position} direction imposes significant transition costs on workers, industries, and communities that depend on the current model. These human costs should not be dismissed.`, strength: 'strong' },
+      { title: 'Technological Uncertainty', explanation: `The ${position} position assumes technological solutions that do not yet exist at scale. Betting on speculative technology is not a sound policy basis.`, strength: 'moderate' },
+      { title: 'Displacement Not Reduction', explanation: `Action in one jurisdiction simply displaces the activity to others without reducing the underlying harm — a phenomenon well-documented in trade and environmental economics.`, strength: 'moderate' },
+    ],
+    rebuttals: [
+      { against: 'Economic Disruption', rebuttal: 'Transition support, retraining programmes, and just transition funds are proven tools to manage disruption. Delay does not eliminate these costs — it concentrates them on the most vulnerable.' },
+      { against: 'Technological Uncertainty', rebuttal: 'The ${position} position does not depend on speculative future technologies — it works with tools available today. The opponent is attacking a strawman.' },
+      { against: 'Displacement Not Reduction', rebuttal: 'International coordination mechanisms and border adjustment tools directly address displacement risk. Leading nations adopting bold positions create the template and pressure others follow.' },
+    ],
+    evidence: [
+      { title: 'Public Health Outcome Data', content: 'Jurisdictions that adopted comparable policy stances show statistically significant improvements in population health metrics within 5-10 years.', label: 'Example — verify before using', type: 'example' },
+      { title: 'Environmental Economics Research', content: 'The Stern Review and subsequent literature consistently find the benefit-cost ratio of early action to be strongly positive compared to delay.', label: 'Example — verify before using', type: 'example' },
+    ],
+  }),
+  // Variant D: Innovation, technology & future-oriented framing
+  (position) => ({
+    arguments: [
+      { title: 'Driving Innovation', explanation: `The ${position} position creates the conditions for technological and social innovation. Constraint and challenge are proven drivers of creative problem-solving — necessity creates invention.`, supporting: 'Innovation economics research shows that ambitious regulatory targets in analogous domains have historically accelerated technological development rather than stifling it.', strength: 'strong' },
+      { title: 'Competitive Advantage', explanation: `Nations and institutions that move first on this motion will develop expertise, infrastructure, and capability that creates durable competitive advantage. Delay cedes this ground to rivals.`, supporting: 'First-mover advantage literature in international political economy supports the claim that bold early adoption creates positive network effects and lock-in.', strength: 'strong' },
+      { title: 'Future-Proofing Institutions', explanation: `The question is not whether the world will move in the ${position} direction — it is whether we move proactively or reactively. The ${position} stance is the only one that prepares institutions for the world as it will be.`, supporting: 'Scenario planning and strategic foresight analysis consistently identify the ${position} direction as the dominant trajectory across plausible futures.', strength: 'moderate' },
+    ],
+    counterarguments: [
+      { title: 'Premature Lock-in', explanation: `Moving early locks in infrastructure and standards that may be superseded by better technologies, creating stranded assets and opportunity costs.`, strength: 'moderate' },
+      { title: 'Digital Divide and Access', explanation: `Innovation-led approaches systematically benefit technically sophisticated actors while leaving behind communities with less access to technology and expertise.`, strength: 'strong' },
+      { title: 'Accountability Gaps', explanation: `Rapid technological change outpaces governance frameworks, creating accountability gaps that allow powerful actors to avoid responsibility for harms.`, strength: 'moderate' },
+    ],
+    rebuttals: [
+      { against: 'Premature Lock-in', rebuttal: 'Adaptive policy design with technology-neutral standards and regular review cycles prevents lock-in. Standards that are ambitious but technology-neutral have proven effective in analogous domains.' },
+      { against: 'Digital Divide and Access', rebuttal: 'Universal access provisions and targeted digital equity programmes are essential complements to innovation policy — not arguments against the core motion.' },
+      { against: 'Accountability Gaps', rebuttal: 'The ${position} position includes accountability frameworks precisely because this risk is recognised. Accountability gaps are an argument for better governance design, not for halting progress.' },
+    ],
+    evidence: [
+      { title: 'Innovation Economics Research', content: 'Studies of ambitious regulatory environments (e.g. EU technology standards) show accelerated private sector R&D investment compared to permissive regimes.', label: 'Example — verify before using', type: 'example' },
+      { title: 'First-Mover Case Studies', content: 'Nations that adopted comparable policy positions early have developed globally competitive industries and expertise that late movers have struggled to match.', label: 'Example — verify before using', type: 'example' },
+    ],
+  }),
+];
+
+const DEMO_OPENING_CLOSINGS = [
+  {
+    opening: (topic, position) => `Open by clearly defining what "${topic}" means in this debate context — control the framing before your opponent does. State your strongest argument in the first thirty seconds, name the key tension at the heart of this motion, and signal to the audience why the ${position} side has the stronger case. Confidence and clarity in the opening sets the tone for the entire debate.`,
+    closing: () => `Close by returning to your strongest argument, directly dismantling the opponent's most credible point, and ending with a single memorable sentence that crystallises why your side should prevail. Never introduce new material in the closing — consolidate, contrast, and leave the audience with a clear choice.`,
+  },
+  {
+    opening: (topic, position) => `Begin by acknowledging what is genuinely contested about "${topic}" — this signals intellectual honesty and disarms the opponent's attempt to paint your side as extreme. Then pivot immediately to the strongest ${position} argument, framing it in terms of concrete impacts on real people rather than abstract principles. End your opening with a clear roadmap of the three points you will prove.`,
+    closing: () => `Your closing should do three things: summarise your three key arguments in one sentence each, directly refute the opponent's strongest point (not their weakest), and end on an emotional and logical high simultaneously. The last thirty seconds determine what the audience remembers — make them count.`,
+  },
+  {
+    opening: (topic, position) => `Open with a concrete, vivid example that illustrates exactly what is at stake in this debate. Let the audience feel the real-world consequences before you make the abstract case. Then frame the central question clearly: what is the core choice this motion presents? Establish early that the ${position} position is the only one that seriously grapples with this choice.`,
+    closing: () => `Close by zooming out to the bigger picture. After a debate full of specific arguments, remind the audience of the fundamental principle at stake. Frame the choice as: a world where your side wins versus a world where the opponent wins — and make that contrast as stark and concrete as possible. End with a call to action or a forward-looking statement.`,
+  },
+];
+
+const DEMO_STRATEGIES = [
+  (difficulty, position) => `For this motion at ${difficulty} level: lead with your most concrete, evidence-based argument — judges are sceptical of pure principle claims. Acknowledge the strongest opposing argument in round 2 and counter it directly rather than ignoring it; this credibility move consistently impresses evaluators. If pushed into a corner, concede the narrow point gracefully and pivot to the bigger picture. The ${position} position is strongest when it demonstrates genuine engagement with opposing concerns rather than dismissing them.`,
+  (difficulty, position) => `At ${difficulty} level, the key to winning the ${position} side is controlling the definitional framing early. The side that defines key terms wins the debate on a structural level before the first substantive argument is made. Once framing is established, focus on the mechanism: don't just assert that the ${position} position produces better outcomes — explain exactly how and why. Quantified comparisons beat vague quality claims every time.`,
+  (difficulty, position) => `The strategic priority for the ${position} side at ${difficulty} level is to force the opponent to defend the status quo or the alternative — and make clear what those alternatives actually look like in practice. Abstract objections crumble when grounded in real-world examples. Use the "even if" move when appropriate: even if you accept the opponent's strongest point, here is why the ${position} position still prevails. This is a powerful technique that demonstrates logical rigour.`,
+];
+
+/** Simple deterministic hash so demo variants are consistent per topic per run, but different across calls */
+const topicHash = (topic) => {
+  let h = 0;
+  for (let i = 0; i < topic.length; i++) { h = ((h << 5) - h + topic.charCodeAt(i)) | 0; }
+  return Math.abs(h);
+};
+
+const DEMO_GENERATE = (topic, position, difficulty, previousArgTitles) => {
+  // Combine topic hash with timestamp bucket (minute-level) and random component so
+  // repeated calls for the same topic within a session also produce different results.
+  const timeComponent = Math.floor(Date.now() / 30000); // changes every 30s
+  const randomComponent = Math.floor(Math.random() * DEMO_ARGUMENT_SETS.length);
+  const hash = topicHash(topic);
+  const setIndex = (hash + timeComponent + randomComponent) % DEMO_ARGUMENT_SETS.length;
+  const openingClosingIndex = (hash + randomComponent) % DEMO_OPENING_CLOSINGS.length;
+  const strategyIndex = (hash + timeComponent) % DEMO_STRATEGIES.length;
+
+  const argSet = DEMO_ARGUMENT_SETS[setIndex](position);
+  const openingClosing = DEMO_OPENING_CLOSINGS[openingClosingIndex];
+  const strategy = DEMO_STRATEGIES[strategyIndex];
+
+  // If previousArgTitles provided, try to pick a different set
+  let finalArgSet = argSet;
+  if (previousArgTitles && previousArgTitles.length > 0) {
+    const prevTitlesLower = previousArgTitles.map((t) => t.toLowerCase());
+    const argSetFirstTitle = argSet.arguments[0]?.title?.toLowerCase() || '';
+    if (prevTitlesLower.some((t) => t.includes(argSetFirstTitle) || argSetFirstTitle.includes(t))) {
+      // Try the next set
+      const altIndex = (setIndex + 1) % DEMO_ARGUMENT_SETS.length;
+      finalArgSet = DEMO_ARGUMENT_SETS[altIndex](position);
+    }
+  }
+
+  // Replace placeholder ${position} strings in rebuttal text
+  const fixText = (text) => text.replace(/\$\{position\}/g, position);
+  const fixRebuttal = (r) => ({ ...r, rebuttal: fixText(r.rebuttal) });
+  const fixArg = (a) => ({ ...a, explanation: fixText(a.explanation), supporting: fixText(a.supporting || '') });
+
+  return {
+    topic,
+    position,
+    difficulty,
+    motionInterpretation: `This motion asks whether society should adopt a stance ${position === 'for' ? 'in favour of' : 'against'} "${topic}". At its core, it centres on the tension between competing values — practicality versus principle, short-term costs versus long-term benefits, and the rights of different stakeholders. The side that most clearly resolves this tension with evidence and logic will prevail.`,
+    keyDefinitions: [
+      { term: 'Key stakeholders', definition: 'The individuals, institutions, and communities whose interests are materially affected by the outcome of this motion.' },
+      { term: 'Status quo', definition: 'The current state of affairs against which this motion is evaluated — the baseline that the proposition side must improve upon.' },
+      { term: 'Burden of proof', definition: 'The obligation to provide sufficient evidence to justify the position taken. In most debate formats, the proposition carries a higher burden.' },
+    ],
+    assumptions: [
+      `That the ${position} side's stated benefits are achievable within realistic institutional constraints`,
+      'That the harms and benefits described are causally attributable to the policy rather than confounded by other factors',
+      'That the comparison point (the alternative to this motion) is realistically the status quo, not some idealised alternative',
+    ],
+    potentialWeaknesses: [
+      `The ${position} position may rely on evidence that is contested or context-dependent — be ready to defend the generalisability of your examples`,
+      'This position may produce distributional effects that benefit some groups at the expense of others — acknowledge and address this directly',
+      'Implementation gaps between stated policy intent and real-world practice are a common and powerful attack line — have concrete answers ready',
+    ],
+    arguments: finalArgSet.arguments.map(fixArg),
+    counterarguments: finalArgSet.counterarguments,
+    rebuttals: finalArgSet.rebuttals.map(fixRebuttal),
+    evidence: finalArgSet.evidence,
+    openingGuidance: openingClosing.opening(topic, position),
+    closingGuidance: openingClosing.closing(topic, position),
+    debateStrategy: strategy(difficulty, position),
+    mode: 'demo',
+  };
+};
 
 const DEMO_REFINE = (topic, argument) => ({
   strengths: [
@@ -262,10 +442,16 @@ export const getMode = () => (isConfigured() ? 'ai' : 'demo');
 
 // ─── 1. Generate Debate Preparation ─────────────────────────────────────────
 
-export const generateDebate = async ({ topic, position, difficulty, debateType }) => {
-  if (!isConfigured()) return DEMO_GENERATE(topic, position, difficulty);
+export const generateDebate = async ({ topic, position, difficulty, debateType, previousArgsSummary }) => {
+  if (!isConfigured()) return DEMO_GENERATE(topic, position, difficulty, previousArgsSummary ? previousArgsSummary.split(',') : null);
 
   const variant = sessionVariant();
+
+  // Build the "avoid repetition" instruction only when a previous summary is provided
+  const avoidSection = previousArgsSummary
+    ? `\nPREVIOUS SESSION AVOIDANCE: The user already saw preparation with these argument titles/themes: [${previousArgsSummary}]. You MUST NOT reuse these titles, themes, or argument structures. Choose entirely different angles, mechanisms, and examples.\n`
+    : '';
+
   const system = `You are an expert debate coach and educator. Your goal is to help students LEARN to debate, not to give them a speech to memorise. Respond ONLY with valid JSON, no markdown, no explanation.`;
 
   const user = `Generate comprehensive debate preparation material. The goal is coaching, not ghost-writing.
@@ -274,11 +460,22 @@ Topic: "${topic}"
 Position: ${position}
 Difficulty: ${difficulty}
 Debate Type: ${debateType}
-
-Session variant (use this to ensure fresh, varied output — do NOT mention it in the response):
-- Primary angle to emphasise: ${variant.angle}
+${avoidSection}
+MANDATORY SESSION VARIANT — You MUST build your entire response around these specific constraints. Do not mention them explicitly in the output, but every argument, example, and piece of evidence must reflect them:
+- Argument framework for this session: ${variant.framework}
+- Stakeholder lens to centre: ${variant.stakeholderLens}
+- Causal chain structure to use: ${variant.causalChain}
+- Primary thematic angle: ${variant.angle}
 - Evidence approach: ${variant.evidenceEmphasis}
-- Session seed: ${variant.seed}
+- Session nonce (ensures uniqueness): ${variant.nonce}
+
+CRITICAL DIVERSITY INSTRUCTIONS:
+1. Do NOT produce the generic "obvious" arguments that would appear in a textbook summary of this topic.
+2. Explore arguments that arise specifically from the ${variant.framework} framework — these should be distinct from what a utilitarian or a rights-theorist would say.
+3. Centre at least one argument explicitly on the perspective of ${variant.stakeholderLens} — name and develop that stakeholder perspective concretely.
+4. Structure your causal reasoning using: ${variant.causalChain}.
+5. ${variant.evidenceEmphasis}
+6. If this topic has well-known "standard" arguments (e.g. economic efficiency, individual rights, social harm), deliberately AVOID those unless you can give them a fundamentally different treatment through the lens of ${variant.framework}.
 
 Return this EXACT JSON structure:
 {
@@ -291,7 +488,7 @@ Return this EXACT JSON structure:
   "assumptions": ["assumption the ${position} side is making", "another assumption"],
   "potentialWeaknesses": ["vulnerability in the ${position} position that the opponent will likely attack", "another weakness"],
   "arguments": [
-    {"title": "short title", "explanation": "substantive explanation 2-3 sentences", "supporting": "what evidence/reasoning supports this", "strength": "strong|moderate|weak"}
+    {"title": "short title", "explanation": "substantive explanation 2-3 sentences — grounded in ${variant.framework}", "supporting": "what evidence/reasoning supports this via the ${variant.evidenceEmphasis} approach", "strength": "strong|moderate|weak"}
   ],
   "counterarguments": [
     {"title": "short title", "explanation": "what the OTHER side will argue, 2 sentences", "strength": "strong|moderate|weak"}
@@ -300,11 +497,11 @@ Return this EXACT JSON structure:
     {"against": "counterargument title", "rebuttal": "how to counter it specifically, 2 sentences"}
   ],
   "evidence": [
-    {"title": "source or example type", "content": "the example or evidence point", "label": "Example — verify before using", "type": "example"}
+    {"title": "source or example type", "content": "the example or evidence point — use ${variant.evidenceEmphasis}", "label": "Example — verify before using", "type": "example"}
   ],
-  "openingGuidance": "2-3 sentences on how to open this specific debate effectively",
+  "openingGuidance": "2-3 sentences on how to open this specific debate effectively given the ${variant.framework} framing",
   "closingGuidance": "2-3 sentences on how to close this debate effectively",
-  "debateStrategy": "3-4 sentences on the overall strategy for this topic at ${difficulty} level"
+  "debateStrategy": "3-4 sentences on the overall strategy for this topic at ${difficulty} level, incorporating the ${variant.stakeholderLens} stakeholder perspective"
 }
 
 Rules:
@@ -312,7 +509,8 @@ Rules:
 - Calibrate to ${difficulty} difficulty — beginner gets clearer structure, competition gets nuanced strategy
 - NEVER present invented statistics as verified facts
 - Always label evidence as "Example — verify before using"
-- This is a coaching document — teach the debater HOW to argue, not WHAT to say verbatim`;
+- This is a coaching document — teach the debater HOW to argue, not WHAT to say verbatim
+- Content must be factually grounded and directly relevant to the topic — do NOT sacrifice accuracy for novelty`;
 
   const raw = await chat(system, user);
   const parsed = parseJSON(raw);
