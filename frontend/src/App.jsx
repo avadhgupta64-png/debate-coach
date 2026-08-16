@@ -11,6 +11,7 @@ import PracticeMode from './pages/PracticeMode.jsx';
 import Results from './pages/Results.jsx';
 import HistoryPage from './pages/History.jsx';
 import Login from './pages/Login.jsx';
+import About from './pages/About.jsx';
 import { AuthProvider, useAuth } from './contexts/AuthContext.jsx';
 import { GuestProvider, useGuest } from './contexts/GuestContext.jsx';
 import LoadingSpinner from './components/LoadingSpinner.jsx';
@@ -193,6 +194,7 @@ function AppRoutes() {
       <Route path="/practice"   element={<ProtectedRoute><PracticeMode /></ProtectedRoute>} />
       <Route path="/results"    element={<ProtectedRoute><Results /></ProtectedRoute>} />
       <Route path="/history"    element={<ProtectedRoute><HistoryPage /></ProtectedRoute>} />
+      <Route path="/about"      element={<About />} />
 
       {/* Fallback */}
       <Route path="*" element={<Navigate to="/" replace />} />

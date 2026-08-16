@@ -25,33 +25,36 @@ import { SCORE_LABELS } from '../data/mockData.js';
 import { useDebateHistory } from '../hooks/useDebateHistory.js';
 import { useAuth } from '../contexts/AuthContext.jsx';
 
-// ─── Score Circle: handles 0-10 and 0-100 ────────────────────────────────────
+// ─── Score Circle: always 0-10 scale ─────────────────────────────────────────
+// If a legacy 0-100 score somehow reaches here, normalise it to 0-10 first.
 
 function ScoreCircle({ score }) {
-  const normalised = score > 10 ? score : score * 10;
+  // Normalise: anything above 10 is still on the 0-100 scale
+  const normalisedScore = typeof score === 'number' && score > 10 ? score / 10 : (score ?? 0);
+
+  // Convert to 0-100 range purely for colour/grade thresholds
+  const pct = normalisedScore * 10;
 
   const color =
-    normalised >= 80 ? 'var(--color-success)' :
-    normalised >= 60 ? 'var(--color-primary)' :
-    normalised >= 40 ? 'var(--color-warning)' :
+    pct >= 80 ? 'var(--color-success)' :
+    pct >= 60 ? 'var(--color-primary)' :
+    pct >= 40 ? 'var(--color-warning)' :
     'var(--color-danger)';
 
   const grade =
-    normalised >= 95 ? 'A+' :
-    normalised >= 85 ? 'A'  :
-    normalised >= 75 ? 'B+' :
-    normalised >= 65 ? 'B'  :
-    normalised >= 50 ? 'C'  : 'D';
+    pct >= 95 ? 'A+' :
+    pct >= 85 ? 'A'  :
+    pct >= 75 ? 'B+' :
+    pct >= 65 ? 'B'  :
+    pct >= 50 ? 'C'  : 'D';
 
-  const isHundred = score > 10;
-  const display = isHundred ? Math.round(score) : score.toFixed(1);
-  const outOf = isHundred ? '100' : '10';
+  const display = normalisedScore.toFixed(1);
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'var(--space-sm)' }}>
       <div style={{ width: 130, height: 130, borderRadius: '50%', border: `4px solid ${color}`, boxShadow: `0 0 36px ${color}40`, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', background: `${color}10` }}>
         <span style={{ fontSize: '2.2rem', fontWeight: 800, color, lineHeight: 1 }}>{display}</span>
-        <span style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', marginTop: 2 }}>out of {outOf}</span>
+        <span style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', marginTop: 2 }}>out of 10</span>
       </div>
       <div style={{ padding: '4px 14px', background: `${color}15`, borderRadius: 'var(--radius-full)', fontSize: '0.85rem', fontWeight: 700, color }}>
         Grade: {grade}
@@ -123,13 +126,22 @@ export default function Results() {
     if (!results || !config || savedRef.current) return;
     if (results.mode === 'error') return;
     savedRef.current = true;
+    // Normalise all scores to 0-10 before saving to localStorage
+    const normScores = results.scores
+      ? Object.fromEntries(
+          Object.entries(results.scores).map(([k, v]) => [k, typeof v === 'number' && v > 10 ? v / 10 : v])
+        )
+      : {};
+    const normOverall = typeof results.overallScore === 'number' && results.overallScore > 10
+      ? results.overallScore / 10
+      : (results.overallScore ?? 0);
     saveDebate({
       topic: config.topic,
       position: config.position,
       difficulty: config.difficulty,
       debateType: config.debateType,
-      overallScore: results.overallScore,
-      scores: results.scores,
+      overallScore: normOverall,
+      scores: normScores,
       strengths: results.strengths,
       weaknesses: results.weaknesses,
       feedback: results.feedback,
@@ -155,7 +167,17 @@ export default function Results() {
   const scores = results.scores || {};
   const scorePairs = Object.entries(scores)
     .filter(([, v]) => typeof v === 'number')
-    .map(([key, value]) => ({ key, label: SCORE_LABELS[key] || key, value }));
+    .map(([key, value]) => ({
+      key,
+      label: SCORE_LABELS[key] || key,
+      // Normalise each individual score: if > 10 it is on the 0-100 scale
+      value: value > 10 ? value / 10 : value,
+    }));
+
+  // Normalise overall score: backend returns 0-100, display as 0-10
+  const normalisedOverall = typeof results.overallScore === 'number' && results.overallScore > 10
+    ? results.overallScore / 10
+    : (results.overallScore ?? 0);
 
   const fallacies = results.detectedFallacies || [];
 
@@ -181,7 +203,7 @@ export default function Results() {
                 </span>
               )}
             </div>
-            <ScoreCircle score={results.overallScore || 0} />
+            <ScoreCircle score={normalisedOverall} />
           </div>
 
           {/* Score Breakdown */}

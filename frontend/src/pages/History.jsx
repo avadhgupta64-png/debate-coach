@@ -62,7 +62,8 @@ function DebateCard({ debate, index }) {
     ? Object.entries(debate.scores).map(([key, value]) => ({
         key,
         label: SCORE_LABELS[key] || key,
-        value,
+        // Normalise to 0-10: legacy entries may have 0-100 values
+        value: typeof value === 'number' && value > 10 ? value / 10 : value,
       }))
     : [];
 
@@ -180,12 +181,12 @@ function DebateCard({ debate, index }) {
               style={{
                 fontSize: '1.5rem',
                 fontWeight: 800,
-                color: scoreColor(debate.overallScore),
+                color: scoreColor(typeof debate.overallScore === 'number' && debate.overallScore > 10 ? debate.overallScore / 10 : debate.overallScore),
                 lineHeight: 1,
               }}
             >
               {typeof debate.overallScore === 'number'
-                ? debate.overallScore.toFixed(1)
+                ? (debate.overallScore > 10 ? (debate.overallScore / 10).toFixed(1) : debate.overallScore.toFixed(1))
                 : '—'}
             </p>
             <p

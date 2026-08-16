@@ -722,8 +722,14 @@ Rules:
 // ─── 6. Complete Debate (Final Evaluation) ────────────────────────────────────
 
 export const completeDebate = async ({ topic, position, rounds, responses, scores, conversationHistory, totalHintsUsed }) => {
-  const avgScore = scores && scores.length > 0
-    ? scores.reduce((a, b) => a + b, 0) / scores.length
+  // scores may arrive as 0-10 (normalised by frontend) or legacy 0-100.
+  // Normalise to 0-100 for the AI prompt context and DEMO fallback.
+  const normalisedScores100 = scores && scores.length > 0
+    ? scores.map((s) => (typeof s === 'number' && s <= 10 ? s * 10 : s))
+    : [];
+
+  const avgScore = normalisedScores100.length > 0
+    ? normalisedScores100.reduce((a, b) => a + b, 0) / normalisedScores100.length
     : 0;
 
   if (!isConfigured()) return DEMO_COMPLETE(topic, position, rounds, avgScore);

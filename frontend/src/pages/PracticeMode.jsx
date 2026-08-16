@@ -281,9 +281,13 @@ export default function PracticeMode() {
       });
 
       const roundScores = evalResult.scores || {};
-      const avgScore = Object.values(roundScores).length
-        ? Object.values(roundScores).reduce((a, b) => a + b, 0) / Object.values(roundScores).length
-        : 60;
+      // Backend returns individual scores on 0-100 scale. Normalise to 0-10.
+      const normalisedRoundScores = Object.fromEntries(
+        Object.entries(roundScores).map(([k, v]) => [k, typeof v === 'number' && v > 10 ? v / 10 : v])
+      );
+      const avgScore = Object.values(normalisedRoundScores).length
+        ? Object.values(normalisedRoundScores).reduce((a, b) => a + b, 0) / Object.values(normalisedRoundScores).length
+        : 6; // default to 6/10 (≈60%) if no scores returned
 
       setAllScores([...allScores, avgScore]);
       setAllResponses([...allResponses, userResponse]);

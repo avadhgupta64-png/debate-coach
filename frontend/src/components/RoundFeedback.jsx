@@ -20,9 +20,17 @@ export default function RoundFeedback({ evalResult, round, totalRounds, onNext, 
 
   const { scores = {}, feedback, strengths = [], weaknesses = [], modelAnswer, keywords = [] } = evalResult;
 
+  // Backend returns scores on a 0-100 scale. Convert to 0-10 for display.
+  // If a score is already <= 10 (legacy data), leave it as-is.
+  const normaliseScore = (v) => (typeof v === 'number' && v > 10 ? v / 10 : v);
+
+  const normalisedScores = Object.fromEntries(
+    Object.entries(scores).map(([k, v]) => [k, normaliseScore(v)])
+  );
+
   const avgScore =
-    Object.values(scores).length > 0
-      ? Object.values(scores).reduce((a, b) => a + b, 0) / Object.values(scores).length
+    Object.values(normalisedScores).length > 0
+      ? Object.values(normalisedScores).reduce((a, b) => a + b, 0) / Object.values(normalisedScores).length
       : 0;
 
   const scoreColor =
@@ -34,7 +42,7 @@ export default function RoundFeedback({ evalResult, round, totalRounds, onNext, 
       ? 'var(--color-warning)'
       : 'var(--color-danger)';
 
-  const scorePairs = Object.entries(scores).map(([key, value]) => ({
+  const scorePairs = Object.entries(normalisedScores).map(([key, value]) => ({
     key,
     label: SCORE_LABELS[key] || key,
     value,

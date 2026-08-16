@@ -235,7 +235,7 @@ export default function Dashboard() {
             <StatCard
               icon={<TrendingUp size={20} color="var(--color-success)" />}
               label="Average Score"
-              value={stats.debatesPracticed > 0 ? `${stats.averageScore}/100` : '—'}
+              value={stats.debatesPracticed > 0 ? `${stats.averageScore}/10` : '—'}
               sub={stats.debatesPracticed > 0 ? 'Across all sessions' : 'No sessions yet'}
               color="var(--color-success)"
             />
@@ -334,16 +334,16 @@ export default function Dashboard() {
                           fontSize: '1.4rem',
                           fontWeight: 700,
                           color:
-                            debate.overallScore >= 8
+                            (typeof debate.overallScore === 'number' && debate.overallScore > 10 ? debate.overallScore / 10 : debate.overallScore) >= 8
                               ? 'var(--color-success)'
-                              : debate.overallScore >= 6
+                              : (typeof debate.overallScore === 'number' && debate.overallScore > 10 ? debate.overallScore / 10 : debate.overallScore) >= 6
                               ? 'var(--color-primary)'
                               : 'var(--color-warning)',
                           lineHeight: 1,
                         }}
                       >
                         {typeof debate.overallScore === 'number'
-                          ? debate.overallScore.toFixed(1)
+                          ? (debate.overallScore > 10 ? (debate.overallScore / 10).toFixed(1) : debate.overallScore.toFixed(1))
                           : '—'}
                       </p>
                       <p style={{ fontSize: '0.72rem', color: 'var(--color-text-muted)', marginTop: 2 }}>

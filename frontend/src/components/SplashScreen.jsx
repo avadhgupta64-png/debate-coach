@@ -5,25 +5,23 @@ import debateCoachLogo from '/debate-coach-logo.png';
  * SplashScreen
  *
  * Full-screen cinematic splash shown once per session.
- * Calls onDone() after the animation completes so the parent can
- * unmount it or mark the splash as seen.
+ * Calls onDone() after the animation completes.
  *
- * Timing (normal motion):
- *   0 ms        — mount, elements invisible
- *   50 ms       — trigger enter transition (slight delay ensures paint)
- *   50+600 ms   — fully visible
- *   50+600+1200 — start exit transition
- *   50+600+1200+600 — exit complete → onDone()
- *   Total ≈ 2450 ms  (within 2.2–2.5s target)
+ * Timing (normal motion) — total = exactly 3000 ms:
+ *   0 ms         — mount, elements invisible
+ *   50 ms        — trigger enter transition
+ *   50 + 600 ms  — fully visible
+ *   50 + 600 + 1750 ms — start exit transition     (hold = 1750 ms)
+ *   50 + 600 + 1750 + 600 ms — exit complete → onDone()
+ *   Total = 50 + 600 + 1750 + 600 = 3000 ms ✓
  *
- * Reduced motion:
- *   No transforms, instant opacity toggle, total ≈ 800 ms.
+ * Reduced motion: no transforms, minimal timing, total ≈ 900 ms.
  */
 
-const ENTER_DELAY   = 50;
-const ENTER_DUR     = 600;
-const HOLD_DUR      = 1200;
-const EXIT_DUR      = 600;
+const ENTER_DELAY = 50;
+const ENTER_DUR   = 600;
+const HOLD_DUR    = 1750;
+const EXIT_DUR    = 600;
 
 const ENTER_DELAY_REDUCED = 50;
 const HOLD_DUR_REDUCED    = 600;
@@ -42,6 +40,9 @@ export default function SplashScreen({ onDone }) {
   const enterDur   = rm ? 0   : ENTER_DUR;
   const holdDur    = rm ? HOLD_DUR_REDUCED : HOLD_DUR;
   const exitDur    = rm ? EXIT_DUR_REDUCED : EXIT_DUR;
+
+  // Total visible time = enterDur + holdDur. The progress bar fills over this period.
+  const fillDuration = enterDur + holdDur;
 
   const schedule = (fn, ms) => {
     const id = setTimeout(fn, ms);
@@ -63,7 +64,7 @@ export default function SplashScreen({ onDone }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // ── Derived styles ────────────────────────────────────────────────
+  // ── Derived styles ──────────────────────────────────────────────────────────
   const easing = 'cubic-bezier(0.4, 0, 0.2, 1)';
 
   // Overlay opacity
@@ -72,23 +73,29 @@ export default function SplashScreen({ onDone }) {
     ? `opacity ${exitDur}ms ease`
     : `opacity ${phase === 'hidden' ? enterDur : exitDur}ms ${easing}`;
 
-  // Content elements: staggered slide-up on enter, slide-up on exit
   const contentVisible = phase === 'visible';
 
   const logoStyle = rm
     ? { opacity: contentVisible ? 1 : 0, transition: `opacity ${rm ? 200 : enterDur}ms ease` }
     : {
         opacity: contentVisible ? 1 : 0,
-        transform: contentVisible ? 'scale(1) translateY(0)' : phase === 'hidden' ? 'scale(0.8) translateY(20px)' : 'scale(1.05) translateY(-10px)',
+        transform: contentVisible
+          ? 'scale(1) translateY(0)'
+          : phase === 'hidden'
+          ? 'scale(0.8) translateY(20px)'
+          : 'scale(1.05) translateY(-10px)',
         transition: `opacity ${enterDur}ms ${easing}, transform ${enterDur}ms ${easing}`,
-        transitionDelay: phase === 'hidden' ? '0ms' : '0ms',
       };
 
   const titleStyle = rm
     ? { opacity: contentVisible ? 1 : 0, transition: `opacity ${rm ? 200 : enterDur}ms ease` }
     : {
         opacity: contentVisible ? 1 : 0,
-        transform: contentVisible ? 'translateY(0)' : phase === 'hidden' ? 'translateY(16px)' : 'translateY(-10px)',
+        transform: contentVisible
+          ? 'translateY(0)'
+          : phase === 'hidden'
+          ? 'translateY(16px)'
+          : 'translateY(-10px)',
         transition: `opacity ${enterDur}ms ${easing}, transform ${enterDur}ms ${easing}`,
         transitionDelay: contentVisible ? '80ms' : '0ms',
       };
@@ -97,14 +104,41 @@ export default function SplashScreen({ onDone }) {
     ? { opacity: contentVisible ? 1 : 0, transition: `opacity ${rm ? 200 : enterDur}ms ease` }
     : {
         opacity: contentVisible ? 1 : 0,
-        transform: contentVisible ? 'translateY(0)' : phase === 'hidden' ? 'translateY(16px)' : 'translateY(-10px)',
+        transform: contentVisible
+          ? 'translateY(0)'
+          : phase === 'hidden'
+          ? 'translateY(16px)'
+          : 'translateY(-10px)',
         transition: `opacity ${enterDur}ms ${easing}, transform ${enterDur}ms ${easing}`,
         transitionDelay: contentVisible ? '160ms' : '0ms',
       };
 
+  // Loading indicator fades in with the content
+  const loaderStyle = rm
+    ? { opacity: contentVisible ? 1 : 0, transition: `opacity ${rm ? 200 : enterDur}ms ease` }
+    : {
+        opacity: contentVisible ? 1 : 0,
+        transition: `opacity ${enterDur}ms ${easing}`,
+        transitionDelay: contentVisible ? '240ms' : '0ms',
+      };
+
+  // The fill bar starts animating as soon as the content becomes visible.
+  // It completes over fillDuration ms so it reaches ~100% just before the exit.
+  const barFillStyle = contentVisible
+    ? {
+        width: '100%',
+        transition: rm
+          ? `width ${holdDur}ms linear`
+          : `width ${fillDuration}ms ${easing}`,
+      }
+    : {
+        width: '0%',
+        transition: 'none',
+      };
+
   return (
     <>
-      {/* Inject keyframes for the ambient glow pulse */}
+      {/* Keyframes for ambient glow and dot pulse */}
       <style>{`
         @keyframes splashGlow {
           0%, 100% { opacity: 0.18; transform: scale(1); }
@@ -114,9 +148,14 @@ export default function SplashScreen({ onDone }) {
           0%, 100% { opacity: 0.10; transform: scale(1); }
           50%       { opacity: 0.20; transform: scale(1.12); }
         }
+        @keyframes splashDot {
+          0%, 80%, 100% { transform: scale(0.7); opacity: 0.4; }
+          40%            { transform: scale(1);   opacity: 1; }
+        }
         @media (prefers-reduced-motion: reduce) {
           @keyframes splashGlow  { 0%, 100% { opacity: 0.18; } }
           @keyframes splashGlow2 { 0%, 100% { opacity: 0.10; } }
+          @keyframes splashDot   { 0%, 100% { opacity: 0.7; } }
         }
       `}</style>
 
@@ -138,34 +177,23 @@ export default function SplashScreen({ onDone }) {
           overflow: 'hidden',
         }}
       >
-        {/* Ambient glow blobs — purely decorative */}
-        <div aria-hidden="true" style={{
-          position: 'absolute',
-          inset: 0,
-          overflow: 'hidden',
-          pointerEvents: 'none',
-        }}>
-          {/* Primary blue glow */}
+        {/* Ambient glow blobs — decorative */}
+        <div aria-hidden="true" style={{ position: 'absolute', inset: 0, overflow: 'hidden', pointerEvents: 'none' }}>
           <div style={{
             position: 'absolute',
-            top: '30%',
-            left: '50%',
+            top: '30%', left: '50%',
             transform: 'translate(-50%, -50%)',
-            width: 480,
-            height: 480,
+            width: 480, height: 480,
             borderRadius: '50%',
             background: 'radial-gradient(circle, rgba(79,142,247,0.35) 0%, transparent 70%)',
             animation: rm ? 'none' : 'splashGlow 3s ease-in-out infinite',
             filter: 'blur(40px)',
           }} />
-          {/* Accent purple glow */}
           <div style={{
             position: 'absolute',
-            top: '60%',
-            left: '50%',
+            top: '60%', left: '50%',
             transform: 'translate(-30%, -50%)',
-            width: 360,
-            height: 360,
+            width: 360, height: 360,
             borderRadius: '50%',
             background: 'radial-gradient(circle, rgba(124,106,245,0.25) 0%, transparent 70%)',
             animation: rm ? 'none' : 'splashGlow2 3.5s ease-in-out infinite 0.5s',
@@ -183,8 +211,10 @@ export default function SplashScreen({ onDone }) {
           zIndex: 1,
           padding: 'var(--space-lg)',
           textAlign: 'center',
+          width: '100%',
+          maxWidth: 320,
         }}>
-          {/* Logo icon */}
+          {/* Logo */}
           <div style={logoStyle}>
             <img
               src={debateCoachLogo}
@@ -225,6 +255,42 @@ export default function SplashScreen({ onDone }) {
             }}>
               Think. Challenge. Persuade.
             </p>
+          </div>
+
+          {/* Loading indicator */}
+          <div aria-hidden="true" style={{ ...loaderStyle, width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10 }}>
+            {/* Animated progress bar */}
+            <div style={{
+              width: '100%',
+              height: 3,
+              borderRadius: 'var(--radius-full)',
+              background: 'rgba(79,142,247,0.15)',
+              overflow: 'hidden',
+            }}>
+              <div style={{
+                height: '100%',
+                borderRadius: 'var(--radius-full)',
+                background: 'linear-gradient(90deg, var(--color-primary), rgba(124,106,245,0.9))',
+                ...barFillStyle,
+              }} />
+            </div>
+
+            {/* Three-dot pulse for reduced-motion users and as supplemental animation */}
+            <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+              {[0, 1, 2].map((i) => (
+                <div
+                  key={i}
+                  style={{
+                    width: 5,
+                    height: 5,
+                    borderRadius: '50%',
+                    background: 'var(--color-primary)',
+                    animation: rm ? 'none' : `splashDot 1.2s ease-in-out ${i * 0.2}s infinite`,
+                    opacity: rm ? 0.6 : undefined,
+                  }}
+                />
+              ))}
+            </div>
           </div>
         </div>
       </div>

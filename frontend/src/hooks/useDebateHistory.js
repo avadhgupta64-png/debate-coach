@@ -49,10 +49,11 @@ export function deriveStats(history) {
 
   const debatesPracticed = history.length;
 
-  // Average overall score — normalise to 0-100 if stored as 0-10
+  // Average overall score — normalise to 0-10 for consistent display
   const totalScore = history.reduce((sum, d) => {
     const s = d.overallScore || 0;
-    return sum + (s <= 10 ? s * 10 : s);
+    // Legacy entries might have 0-100 values; normalise to 0-10
+    return sum + (s > 10 ? s / 10 : s);
   }, 0);
   const averageScore = +(totalScore / debatesPracticed).toFixed(1);
 
@@ -62,8 +63,8 @@ export function deriveStats(history) {
   history.forEach((d) => {
     if (d.scores && typeof d.scores === 'object') {
       Object.entries(d.scores).forEach(([skill, val]) => {
-        // normalise to 0-100
-        const v = val <= 10 ? val * 10 : val;
+        // Normalise legacy 0-100 entries to 0-10
+        const v = typeof val === 'number' && val > 10 ? val / 10 : (val || 0);
         skillTotals[skill] = (skillTotals[skill] || 0) + v;
         skillCounts[skill] = (skillCounts[skill] || 0) + 1;
       });
@@ -82,7 +83,7 @@ export function deriveStats(history) {
   };
 
   let strongestSkill = '—';
-  let highestAvg = 0; // only consider skills with a positive average score
+  let highestAvg = 0; // 0-10 scale: only consider skills with a positive average score
   Object.entries(skillTotals).forEach(([skill, total]) => {
     const avg = total / skillCounts[skill];
     if (avg > highestAvg) {
