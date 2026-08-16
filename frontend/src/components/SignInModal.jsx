@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { X, Target, AlertCircle } from 'lucide-react';
+import { X, AlertCircle } from 'lucide-react';
+import debateCoachLogo from '/debate-coach-logo.png';
 import { useAuth } from '../contexts/AuthContext.jsx';
 import { useGuest } from '../contexts/GuestContext.jsx';
 
@@ -175,19 +176,19 @@ export default function SignInModal({ isOpen, onClose, intendedPath = '/' }) {
 
           {/* Logo */}
           <div style={{ textAlign: 'center', marginBottom: 'var(--space-xl)' }}>
-            <div style={{
-              width: 56,
-              height: 56,
-              background: 'linear-gradient(135deg, var(--color-primary), var(--color-accent))',
-              borderRadius: 'var(--radius-md)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              margin: '0 auto var(--space-md)',
-              boxShadow: '0 4px 20px rgba(79,142,247,0.3)',
-            }}>
-              <Target size={28} color="#fff" />
-            </div>
+            <img
+              src={debateCoachLogo}
+              alt="Debate Coach"
+              style={{
+                width: 56,
+                height: 56,
+                borderRadius: 'var(--radius-md)',
+                objectFit: 'contain',
+                display: 'block',
+                margin: '0 auto var(--space-md)',
+                boxShadow: '0 4px 20px rgba(79,142,247,0.3)',
+              }}
+            />
 
             <h2
               id="signin-modal-title"

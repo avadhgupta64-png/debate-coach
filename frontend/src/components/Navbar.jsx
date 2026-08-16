@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Target, Menu, X, Home, Plus, History, LogOut, User as UserIcon } from 'lucide-react';
+import { Menu, X, Home, Plus, History, LogOut, User as UserIcon } from 'lucide-react';
+import debateCoachLogo from '/debate-coach-logo.png';
 import { useAuth } from '../contexts/AuthContext.jsx';
 import { useGuest } from '../contexts/GuestContext.jsx';
 import { useSignInModal } from '../App.jsx';
@@ -89,20 +90,17 @@ export default function Navbar() {
               textDecoration: 'none',
             }}
           >
-            <div
+            <img
+              src={debateCoachLogo}
+              alt="Debate Coach"
               style={{
                 width: 34,
                 height: 34,
-                background: 'linear-gradient(135deg, var(--color-primary), var(--color-accent))',
                 borderRadius: 'var(--radius-md)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
+                objectFit: 'contain',
                 flexShrink: 0,
               }}
-            >
-              <Target size={18} color="#fff" />
-            </div>
+            />
             <span
               style={{
                 fontWeight: 700,

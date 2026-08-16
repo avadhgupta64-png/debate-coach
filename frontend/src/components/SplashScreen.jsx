@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { Target } from 'lucide-react';
+import debateCoachLogo from '/debate-coach-logo.png';
 
 /*
  * SplashScreen
@@ -186,18 +186,17 @@ export default function SplashScreen({ onDone }) {
         }}>
           {/* Logo icon */}
           <div style={logoStyle}>
-            <div style={{
-              width: 88,
-              height: 88,
-              background: 'linear-gradient(135deg, var(--color-primary), var(--color-accent))',
-              borderRadius: 'var(--radius-lg)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              boxShadow: '0 0 40px rgba(79,142,247,0.4), 0 8px 32px rgba(0,0,0,0.5)',
-            }}>
-              <Target size={44} color="#fff" strokeWidth={1.8} />
-            </div>
+            <img
+              src={debateCoachLogo}
+              alt="Debate Coach"
+              style={{
+                width: 88,
+                height: 88,
+                borderRadius: 'var(--radius-lg)',
+                objectFit: 'contain',
+                boxShadow: '0 0 40px rgba(79,142,247,0.4), 0 8px 32px rgba(0,0,0,0.5)',
+              }}
+            />
           </div>
 
           {/* Wordmark */}

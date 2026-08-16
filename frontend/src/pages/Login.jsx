@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Target, AlertCircle } from 'lucide-react';
+import { AlertCircle } from 'lucide-react';
+import debateCoachLogo from '/debate-coach-logo.png';
 import { useAuth } from '../contexts/AuthContext.jsx';
 import { useGuest } from '../contexts/GuestContext.jsx';
 import { useDocumentTitle } from '../hooks/useDocumentTitle.js';
@@ -51,21 +52,19 @@ export default function Login() {
         <div className="page-content">
           {/* Logo and welcome */}
           <div style={{ textAlign: 'center', marginBottom: 'var(--space-2xl)' }}>
-            <div
+            <img
+              src={debateCoachLogo}
+              alt="Debate Coach"
               style={{
                 width: 80,
                 height: 80,
-                background: 'linear-gradient(135deg, var(--color-primary), var(--color-accent))',
                 borderRadius: 'var(--radius-lg)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
+                objectFit: 'contain',
+                display: 'block',
                 margin: '0 auto var(--space-lg)',
                 boxShadow: '0 8px 32px rgba(79,142,247,0.25)',
               }}
-            >
-              <Target size={40} color="#fff" />
-            </div>
+            />
             <h1
               style={{
                 fontSize: 'clamp(1.8rem, 4vw, 2.5rem)',
