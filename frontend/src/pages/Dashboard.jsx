@@ -11,12 +11,16 @@ import {
   ArrowRight,
   History,
   Clock,
+  PlayCircle,
+  Trash2,
 } from 'lucide-react';
 import { useDebateHistory } from '../hooks/useDebateHistory.js';
+import { useDraftDebate } from '../hooks/useDraftDebate.js';
 import { useDocumentTitle } from '../hooks/useDocumentTitle.js';
 import PositionBadge from '../components/PositionBadge.jsx';
 import { useAuth } from '../contexts/AuthContext.jsx';
 import { useSignInModal } from '../App.jsx';
+import { useDebate } from '../App.jsx';
 
 const DIFFICULTY_COLORS = {
   beginner: 'var(--color-success)',
@@ -84,7 +88,12 @@ export default function Dashboard() {
   const { currentUser } = useAuth();
   const { openSignInModal } = useSignInModal();
   const { history, stats } = useDebateHistory(currentUser?.uid);
+  const { loadDraft, clearDraft, hasDraft } = useDraftDebate(currentUser?.uid);
+  const { setConfig } = useDebate();
   useDocumentTitle('Dashboard');
+
+  // Draft detection — re-evaluate on every render so it stays current
+  const draft = hasDraft() ? loadDraft() : null;
 
   // Gate: guests must sign in before starting a debate
   const startDebate = () => {
@@ -95,11 +104,113 @@ export default function Dashboard() {
     }
   };
 
+  // Resume a saved draft: restore config into DebateContext then navigate to practice
+  const resumeDraft = () => {
+    if (!draft) return;
+    setConfig(draft.config);
+    navigate('/practice');
+  };
+
+  const discardDraft = () => {
+    clearDraft();
+    // Force re-render by navigating to same page
+    navigate('/', { replace: true });
+  };
+
   // Show the 3 most recent debates
   const recentDebates = history.slice(0, 3);
 
   return (
     <div className="page-fade">
+
+      {/* ── Draft resume banner ─────────────────────────────────────────────── */}
+      {draft && (
+        <div
+          style={{
+            background: 'linear-gradient(90deg, rgba(79,142,247,0.10) 0%, rgba(124,106,245,0.07) 100%)',
+            borderBottom: '1px solid rgba(79,142,247,0.18)',
+          }}
+        >
+          <div
+            className="container"
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 'var(--space-md)',
+              padding: 'var(--space-md) var(--space-lg)',
+              flexWrap: 'wrap',
+            }}
+          >
+            {/* Icon */}
+            <div
+              style={{
+                width: 40,
+                height: 40,
+                borderRadius: 'var(--radius-md)',
+                background: 'var(--color-primary-dim)',
+                border: '1px solid rgba(79,142,247,0.25)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                flexShrink: 0,
+              }}
+            >
+              <PlayCircle size={20} color="var(--color-primary)" />
+            </div>
+
+            {/* Text */}
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <p
+                style={{
+                  fontSize: '0.875rem',
+                  fontWeight: 600,
+                  color: 'var(--color-text-primary)',
+                  marginBottom: 2,
+                }}
+              >
+                You have an unfinished debate
+              </p>
+              <p
+                style={{
+                  fontSize: '0.8rem',
+                  color: 'var(--color-text-muted)',
+                  whiteSpace: 'nowrap',
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                }}
+              >
+                {draft.config?.topic
+                  ? `"${draft.config.topic}" · Round ${draft.round ?? 1} of 5`
+                  : `Round ${draft.round ?? 1} of 5`}
+                {draft.savedAt
+                  ? ` · saved ${timeAgo(draft.savedAt)}`
+                  : ''}
+              </p>
+            </div>
+
+            {/* Actions */}
+            <div style={{ display: 'flex', gap: 'var(--space-sm)', flexShrink: 0 }}>
+              <button
+                className="btn btn-ghost btn-sm"
+                onClick={discardDraft}
+                style={{ color: 'var(--color-text-muted)' }}
+                title="Discard draft"
+              >
+                <Trash2 size={14} />
+                Discard
+              </button>
+              <button
+                className="btn btn-primary btn-sm"
+                onClick={resumeDraft}
+              >
+                <PlayCircle size={14} />
+                Resume
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Hero */}
       <section
         style={{

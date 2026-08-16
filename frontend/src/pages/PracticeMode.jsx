@@ -16,6 +16,8 @@ import {
 import { useDebate } from '../App.jsx';
 import { useToast } from '../App.jsx';
 import { useDebateSession } from '../hooks/useDebateSession.js';
+import { useDraftDebate } from '../hooks/useDraftDebate.js';
+import { useAuth } from '../contexts/AuthContext.jsx';
 import PositionBadge from '../components/PositionBadge.jsx';
 import LoadingSpinner from '../components/LoadingSpinner.jsx';
 import RoundFeedback from '../components/RoundFeedback.jsx';
@@ -184,9 +186,11 @@ function HintPanel({ topic, position, challenge, conversationHistory, getHint, c
 
 export default function PracticeMode() {
   const navigate = useNavigate();
-  const { debate, setResults } = useDebate();
+  const { debate, setResults, setConfig } = useDebate();
   const { addToast } = useToast();
+  const { currentUser } = useAuth();
   const { loading, error, challenge, evaluate, complete, getHint, clearError } = useDebateSession();
+  const { saveDraft, loadDraft, clearDraft } = useDraftDebate(currentUser?.uid);
 
   const config = debate.config;
   useDocumentTitle('Practice Debate');
@@ -207,10 +211,38 @@ export default function PracticeMode() {
   const [roundHintsUsed, setRoundHintsUsed] = useState(0);
   const [totalHintsUsed, setTotalHintsUsed] = useState(0);
 
+  // Track whether we restored from a draft (skip fetchFirstChallenge in that case)
+  const restoredFromDraft = useRef(false);
+
   const responseRef = useRef(null);
   const chatBottomRef = useRef(null);
 
   useEffect(() => {
+    // ── Draft restore ─────────────────────────────────────────────────────────
+    // If the user left mid-session, a draft may have been saved. Restore it so
+    // they continue from where they stopped rather than starting over.
+    const draft = loadDraft();
+    if (draft && draft.config) {
+      // Restore config into DebateContext if it isn't already set (e.g. user
+      // navigated directly to /practice after a page refresh).
+      if (!config) {
+        setConfig(draft.config);
+      }
+      // Restore all session state
+      setRound(draft.round ?? 1);
+      setCurrentChallenge(draft.currentChallenge ?? '');
+      setHistory(draft.history ?? []);
+      setAllScores(draft.allScores ?? []);
+      setAllResponses(draft.allResponses ?? []);
+      setTotalHintsUsed(draft.totalHintsUsed ?? 0);
+      setPhase('challenge');
+      setTimerRunning(true);
+      restoredFromDraft.current = true;
+      addToast('Draft restored — carry on from where you left off.', 'info');
+      return;
+    }
+
+    // ── Normal start ──────────────────────────────────────────────────────────
     if (!config) { navigate('/setup'); return; }
     fetchFirstChallenge();
   }, []);
@@ -218,6 +250,25 @@ export default function PracticeMode() {
   useEffect(() => {
     chatBottomRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [history, phase]);
+
+  // ── Auto-save draft on every meaningful state change ──────────────────────
+  // Only save when there is an active challenge (i.e. the session has started
+  // and at least one AI challenge has been received). We do NOT save during
+  // the very first loading phase to avoid writing an empty draft.
+  useEffect(() => {
+    if (!config) return;
+    if (phase === 'loading' && round === 1 && history.length === 0) return; // nothing yet
+    if (phase === 'done') return; // session finished — clearDraft handles this
+    saveDraft({
+      config,
+      round,
+      currentChallenge,
+      history,
+      allScores,
+      allResponses,
+      totalHintsUsed,
+    });
+  }, [round, currentChallenge, history, allScores, allResponses, phase, totalHintsUsed]);
 
   const resetHints = () => {
     setCurrentHintLevel(0);
@@ -316,6 +367,7 @@ export default function PracticeMode() {
 
   const finishDebate = async (scores, responses, finalHistory) => {
     setPhase('loading');
+    clearDraft(); // session ending — remove the draft
     try {
       const result = await complete({
         topic: config.topic,
@@ -405,7 +457,14 @@ export default function PracticeMode() {
           {/* Header bar */}
           <div className="card" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 'var(--space-md)', marginBottom: 'var(--space-lg)', flexWrap: 'wrap' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-sm)', flexWrap: 'wrap' }}>
-              <button className="btn btn-ghost btn-sm" onClick={() => navigate('/preparation')}>
+              <button className="btn btn-ghost btn-sm" onClick={() => {
+                // Save a draft so the user can resume from Dashboard
+                if (config && currentChallenge) {
+                  saveDraft({ config, round, currentChallenge, history, allScores, allResponses, totalHintsUsed });
+                  addToast('Draft saved — resume from the Dashboard anytime.', 'info');
+                }
+                navigate('/');
+              }}>
                 <ChevronLeft size={16} />
               </button>
               <PositionBadge position={config.position} />
