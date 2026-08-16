@@ -80,6 +80,9 @@ export default function HeroTargetAnimation({
   const getBullseyeScreen = useCallback(() => {
     if (!containerRef.current) return null;
     const rect = containerRef.current.getBoundingClientRect();
+    // If the container is hidden (display:none via .hide-mobile) its rect is all
+    // zeros. Bail out so we don't fly to (0,0) and hide the period permanently.
+    if (rect.width === 0 || rect.height === 0) return null;
     const sx = rect.width  / SVG_W;
     const sy = rect.height / SVG_H;
     return {
@@ -150,7 +153,15 @@ export default function HeroTargetAnimation({
       // ── Measure ─────────────────────────────────────────────────────
       const periodEl = periodRef?.current;
       const bullseye = getBullseyeScreen();
-      if (!periodEl || !bullseye) return;
+      if (!periodEl || !bullseye) {
+        // Container is hidden (e.g. .hide-mobile on small screens).
+        // Ensure the period is visible and stop — don't loop.
+        if (periodEl) {
+          periodEl.style.visibility = 'visible';
+          periodEl.style.opacity    = '1';
+        }
+        return;
+      }
 
       const pr   = periodEl.getBoundingClientRect();
       const srcX = pr.left + pr.width  / 2;

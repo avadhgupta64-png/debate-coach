@@ -49,19 +49,19 @@ export default function Login() {
   return (
     <div className="page-fade">
       <div className="container-narrow" style={{ maxWidth: 480 }}>
-        <div className="page-content">
+        <div className="page-content" style={{ paddingTop: 'var(--space-lg)', paddingBottom: 'var(--space-lg)' }}>
           {/* Logo and welcome */}
-          <div style={{ textAlign: 'center', marginBottom: 'var(--space-2xl)' }}>
+          <div style={{ textAlign: 'center', marginBottom: 'var(--space-lg)' }}>
             <img
               src={debateCoachLogo}
               alt="Debate Coach"
               style={{
-                width: 80,
-                height: 80,
+                width: 64,
+                height: 64,
                 borderRadius: 'var(--radius-lg)',
                 objectFit: 'contain',
                 display: 'block',
-                margin: '0 auto var(--space-lg)',
+                margin: '0 auto var(--space-md)',
                 boxShadow: '0 8px 32px rgba(79,142,247,0.25)',
               }}
             />
@@ -224,7 +224,7 @@ export default function Login() {
           </div>
 
           {/* Features list — rotating cinematic presentation */}
-          <div style={{ marginTop: 'var(--space-2xl)' }}>
+          <div style={{ marginTop: 'var(--space-lg)' }}>
             <h3
               style={{
                 fontSize: '0.85rem',
