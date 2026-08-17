@@ -18,6 +18,7 @@ import { useDebateHistory } from '../hooks/useDebateHistory.js';
 import { useDraftDebate } from '../hooks/useDraftDebate.js';
 import { useDocumentTitle } from '../hooks/useDocumentTitle.js';
 import PositionBadge from '../components/PositionBadge.jsx';
+import CoachCard from '../components/CoachCard.jsx';
 import { useAuth } from '../contexts/AuthContext.jsx';
 import { useSignInModal } from '../App.jsx';
 import { useDebate } from '../App.jsx';
@@ -385,6 +386,16 @@ export default function Dashboard() {
               sub="Stay consistent"
               color="var(--color-danger)"
             />
+          </div>
+        </div>
+      </section>
+
+      {/* AI Coach Card */}
+      <section style={{ padding: 'var(--space-md) 0 var(--space-lg)' }}>
+        <div className="container">
+          <p className="section-label">Your Coach</p>
+          <div style={{ maxWidth: 480 }}>
+            <CoachCard />
           </div>
         </div>
       </section>

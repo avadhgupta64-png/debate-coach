@@ -12,6 +12,7 @@ import Results from './pages/Results.jsx';
 import HistoryPage from './pages/History.jsx';
 import Login from './pages/Login.jsx';
 import About from './pages/About.jsx';
+import DebateProfile from './pages/DebateProfile.jsx';
 import { AuthProvider, useAuth } from './contexts/AuthContext.jsx';
 import { GuestProvider, useGuest } from './contexts/GuestContext.jsx';
 import LoadingSpinner from './components/LoadingSpinner.jsx';
@@ -194,6 +195,7 @@ function AppRoutes() {
       <Route path="/practice"   element={<ProtectedRoute><PracticeMode /></ProtectedRoute>} />
       <Route path="/results"    element={<ProtectedRoute><Results /></ProtectedRoute>} />
       <Route path="/history"    element={<ProtectedRoute><HistoryPage /></ProtectedRoute>} />
+      <Route path="/profile"    element={<ProtectedRoute><DebateProfile /></ProtectedRoute>} />
       <Route path="/about"      element={<About />} />
 
       {/* Fallback */}
