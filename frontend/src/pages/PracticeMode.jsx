@@ -48,10 +48,12 @@ function Timer({ running, onExpire, limitMinutes }) {
   const mins = String(Math.floor(seconds / 60)).padStart(2, '0');
   const secs = String(seconds % 60).padStart(2, '0');
   const isLow = seconds < 60;
+  const isCritical = seconds < 15;
 
   return (
-    <span style={{ fontWeight: 700, fontSize: '0.9rem', color: isLow ? 'var(--color-danger)' : 'var(--color-text-secondary)', fontVariantNumeric: 'tabular-nums' }}>
+    <span style={{ fontWeight: 700, fontSize: '0.9rem', color: isCritical ? 'var(--color-danger)' : isLow ? 'var(--color-warning)' : 'var(--color-text-secondary)', fontVariantNumeric: 'tabular-nums' }}>
       {mins}:{secs}
+      {isCritical && <span style={{ marginLeft: 6, fontSize: '0.7rem', fontWeight: 700, color: 'var(--color-danger)' }}>⚠️</span>}
     </span>
   );
 }
@@ -204,12 +206,14 @@ export default function PracticeMode() {
   const [phase, setPhase] = useState('loading'); // loading | challenge | evaluating | feedback | done
   const [timerRunning, setTimerRunning] = useState(false);
   const [currentEval, setCurrentEval] = useState(null);
+  const [notes, setNotes] = useState(''); // Speaker notes/outline
 
   // Hint state per round
   const [currentHintLevel, setCurrentHintLevel] = useState(0);
   const [hintText, setHintText] = useState('');
   const [roundHintsUsed, setRoundHintsUsed] = useState(0);
   const [totalHintsUsed, setTotalHintsUsed] = useState(0);
+  const [notesOpen, setNotesOpen] = useState(false);
 
   // Track whether we restored from a draft (skip fetchFirstChallenge in that case)
   const restoredFromDraft = useRef(false);
@@ -230,6 +234,7 @@ export default function PracticeMode() {
       setHistory(draft.history ?? []);
       setAllScores(draft.allScores ?? []);
       setAllResponses(draft.allResponses ?? []);
+      setNotes(draft.notes ?? '');
       setTotalHintsUsed(draft.totalHintsUsed ?? 0);
       setPhase('challenge');
       setTimerRunning(true);
@@ -261,9 +266,10 @@ export default function PracticeMode() {
       history,
       allScores,
       allResponses,
+      notes,
       totalHintsUsed,
     });
-  }, [round, currentChallenge, history, allScores, allResponses, phase, totalHintsUsed]);
+  }, [round, currentChallenge, history, allScores, allResponses, phase, totalHintsUsed, notes]);
 
   const resetHints = () => {
     setCurrentHintLevel(0);
@@ -553,6 +559,57 @@ export default function PracticeMode() {
               </button>
             </div>
           )}
+
+          {/* Speaker Notes/Outline Editor */}
+          <div className="card" style={{ marginBottom: 'var(--space-lg)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 'var(--space-sm)' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <Lightbulb size={14} color="var(--color-primary)" />
+                <span style={{ fontSize: '0.78rem', fontWeight: 600, color: 'var(--color-text-muted)', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Speaker Notes / Outline</span>
+              </div>
+              <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                {notes && (
+                  <button
+                    className="btn btn-ghost btn-xs"
+                    onClick={() => setNotes('')}
+                    style={{ color: 'var(--color-danger)' }}
+                  >
+                    Clear
+                  </button>
+                )}
+                <button
+                  className="btn btn-ghost btn-sm"
+                  onClick={() => setNotesOpen(!notesOpen)}
+                  style={{ color: 'var(--color-text-muted)' }}
+                >
+                  {notesOpen ? <ChevronDown size={14} /> : <ChevronDown size={14} style={{ transform: 'rotate(180deg)' }} />}
+                  {notesOpen ? 'Hide notes' : 'Show notes'}
+                </button>
+              </div>
+            </div>
+
+            {notesOpen && (
+              <div style={{ animation: 'fadeIn 0.2s ease' }}>
+                <p style={{ fontSize: '0.8rem', color: 'var(--color-text-muted)', marginBottom: 'var(--space-sm)' }}>
+                  Write your outline, key points, or talking points here. This is saved automatically with your draft.
+                </p>
+                <textarea
+                  className="textarea"
+                  style={{ minHeight: 100, marginBottom: 'var(--space-sm)' }}
+                  placeholder="Type your notes or outline here..."
+                  value={notes}
+                  onChange={(e) => setNotes(e.target.value)}
+                  disabled={loading}
+                  maxLength={2000}
+                />
+                <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                  <span style={{ fontSize: '0.7rem', color: 'var(--color-text-muted)' }}>
+                    {notes.length} characters
+                  </span>
+                </div>
+              </div>
+            )}
+          </div>
 
           {/* Response area */}
           {phase === 'challenge' && (

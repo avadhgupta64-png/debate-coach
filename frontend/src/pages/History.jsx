@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   History,
@@ -18,6 +18,10 @@ import {
   BarChart2,
   PlayCircle,
   FileText,
+  Search,
+  Download,
+  Filter,
+  X,
 } from 'lucide-react';
 import { useDebateHistory } from '../hooks/useDebateHistory.js';
 import { useDraftDebate } from '../hooks/useDraftDebate.js';
@@ -580,6 +584,73 @@ function DebateCard({ debate, index }) {
   );
 }
 
+const SKILL_LABELS = {
+  argumentQuality: 'Argument Quality',
+  rebuttal: 'Rebuttal',
+  logic: 'Logic',
+  evidence: 'Evidence',
+  clarity: 'Clarity',
+  confidence: 'Confidence',
+  persuasiveness: 'Persuasiveness',
+  structure: 'Structure',
+};
+
+// Helper to extract normalized scores from a debate entry
+function getDebateScores(debate) {
+  if (!debate.scores || typeof debate.scores !== 'object') return {};
+  return Object.fromEntries(
+    Object.entries(debate.scores).map(([k, v]) => [k, typeof v === 'number' && v > 10 ? v / 10 : v])
+  );
+}
+
+function getTopSkill(debate) {
+  const scores = getDebateScores(debate);
+  if (Object.keys(scores).length === 0) return null;
+  let bestSkill = null;
+  let bestScore = -1;
+  Object.entries(scores).forEach(([skill, score]) => {
+    if (score > bestScore) {
+      bestScore = score;
+      bestSkill = skill;
+    }
+  });
+  return bestSkill;
+}
+
+// Filter debates based on search term, date range, skill, and difficulty
+function filterDebates(debates, searchQuery, dateFrom, dateTo, skillFilter, difficultyFilter) {
+  return debates.filter((debate) => {
+    // Search term filter (topic)
+    if (searchQuery) {
+      const query = searchQuery.toLowerCase();
+      if (!debate.topic.toLowerCase().includes(query)) return false;
+    }
+
+    // Date range filter
+    if (dateFrom) {
+      const from = new Date(dateFrom);
+      from.setHours(0, 0, 0, 0);
+      if (new Date(debate.completedAt) < from) return false;
+    }
+    if (dateTo) {
+      const to = new Date(dateTo);
+      to.setHours(23, 59, 59, 999);
+      if (new Date(debate.completedAt) > to) return false;
+    }
+
+    // Skill filter (top skill must match)
+    if (skillFilter) {
+      const topSkill = getTopSkill(debate);
+      if (!topSkill || topSkill !== skillFilter) return false;
+    }
+
+    // Difficulty filter
+    if (difficultyFilter && debate.difficulty !== difficultyFilter) return false;
+
+    return true;
+  });
+}
+
 export default function HistoryPage() {
   const navigate = useNavigate();
   const { currentUser } = useAuth();
@@ -587,6 +658,13 @@ export default function HistoryPage() {
   const { drafts, clearDraft } = useDraftDebate(currentUser?.uid);
   const { setConfig } = useDebate();
   const [confirmClear, setConfirmClear] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [dateFrom, setDateFrom] = useState('');
+  const [dateTo, setDateTo] = useState('');
+  const [skillFilter, setSkillFilter] = useState('');
+  const [difficultyFilter, setDifficultyFilter] = useState('');
+  const [exportFormat, setExportFormat] = useState('csv');
+  const [showFilters, setShowFilters] = useState(false);
   useDocumentTitle('Debate History');
 
   const handleClear = () => {
@@ -603,6 +681,85 @@ export default function HistoryPage() {
     setConfig(draft.config);
     navigate('/practice');
   };
+
+  // Export to CSV or JSON
+  const handleExport = () => {
+    const filteredHistory = filterDebates(
+      history,
+      searchQuery,
+      dateFrom,
+      dateTo,
+      skillFilter,
+      difficultyFilter
+    );
+
+    if (filteredHistory.length === 0) {
+      alert('No debates match your filters to export.');
+      return;
+    }
+
+    if (exportFormat === 'json') {
+      const dataStr = JSON.stringify(filteredHistory, null, 2);
+      const blob = new Blob([dataStr], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `debate-history-${new Date().toISOString().split('T')[0]}.json`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    } else {
+      // CSV format
+      const headers = ['Date', 'Topic', 'Position', 'Difficulty', 'Overall Score', 'Argument Quality', 'Rebuttal', 'Logic', 'Evidence', 'Clarity', 'Confidence', 'Persuasiveness', 'Structure'];
+      
+      const rows = filteredHistory.map((debate) => {
+        const scores = getDebateScores(debate);
+        return [
+          new Date(debate.completedAt).toISOString().split('T')[0],
+          `"${debate.topic.replace(/"/g, '""')}"`,
+          debate.position || '',
+          debate.difficulty || '',
+          (typeof debate.overallScore === 'number' && debate.overallScore > 10 ? debate.overallScore / 10 : debate.overallScore || 0).toFixed(1),
+          scores.argumentQuality?.toFixed(1) || '',
+          scores.rebuttal?.toFixed(1) || '',
+          scores.logic?.toFixed(1) || '',
+          scores.evidence?.toFixed(1) || '',
+          scores.clarity?.toFixed(1) || '',
+          scores.confidence?.toFixed(1) || '',
+          scores.persuasiveness?.toFixed(1) || '',
+          scores.structure?.toFixed(1) || '',
+        ].join(',');
+      });
+
+      const csvContent = [headers.join(','), ...rows].join('\n');
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `debate-history-${new Date().toISOString().split('T')[0]}.csv`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    }
+  };
+
+  const filteredHistory = useMemo(() => {
+    return filterDebates(history, searchQuery, dateFrom, dateTo, skillFilter, difficultyFilter);
+  }, [history, searchQuery, dateFrom, dateTo, skillFilter, difficultyFilter]);
+
+  // Get all unique skills from history for filter dropdown
+  const allSkills = useMemo(() => {
+    const skills = new Set();
+    history.forEach((debate) => {
+      const scores = getDebateScores(debate);
+      Object.keys(scores).forEach((skill) => skills.add(skill));
+    });
+    return Array.from(skills);
+  }, [history]);
+
+  const hasActiveFilters = searchQuery || dateFrom || dateTo || skillFilter || difficultyFilter;
 
   return (
     <div className="page-fade">
@@ -662,7 +819,7 @@ export default function HistoryPage() {
               </p>
             </div>
 
-            <div style={{ display: 'flex', gap: 'var(--space-sm)', alignItems: 'center' }}>
+            <div style={{ display: 'flex', gap: 'var(--space-sm)', alignItems: 'center', flexWrap: 'wrap' }}>
               {history.length > 0 && (
                 <button
                   className="btn btn-ghost btn-sm"
@@ -677,6 +834,21 @@ export default function HistoryPage() {
                 </button>
               )}
               <button
+                className="btn btn-secondary btn-sm"
+                onClick={handleExport}
+              >
+                <Download size={14} />
+                Export ({exportFormat.toUpperCase()})
+              </button>
+              <button
+                className="btn btn-ghost btn-sm"
+                onClick={() => setShowFilters(!showFilters)}
+                style={{ border: hasActiveFilters ? '1px solid var(--color-primary)' : undefined }}
+              >
+                <Filter size={14} />
+                Filters {hasActiveFilters && <span style={{ marginLeft: 4, fontSize: '0.7rem', background: 'var(--color-primary)', color: 'white', padding: '2px 6px', borderRadius: 8 }}>{filteredHistory.length}</span>}
+              </button>
+              <button
                 className="btn btn-primary btn-sm"
                 onClick={() => navigate('/setup')}
               >
@@ -685,6 +857,158 @@ export default function HistoryPage() {
               </button>
             </div>
           </div>
+
+          {/* Filters Panel */}
+          {showFilters && (
+            <div
+              className="card"
+              style={{
+                marginTop: 'var(--space-md)',
+                padding: 'var(--space-md)',
+                background: 'var(--color-surface)',
+              }}
+            >
+              <div
+                style={{
+                  display: 'grid',
+                  gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+                  gap: 'var(--space-md)',
+                }}
+              >
+                {/* Search */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                  <label style={{ fontSize: '0.78rem', fontWeight: 600, color: 'var(--color-text-muted)' }}>Search Topic</label>
+                  <div style={{ position: 'relative' }}>
+                    <Search size={14} style={{ position: 'absolute', left: 10, top: 10, color: 'var(--color-text-muted)' }} />
+                    <input
+                      type="text"
+                      className="input"
+                      placeholder="Search by topic..."
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      style={{ paddingLeft: 34 }}
+                    />
+                    {searchQuery && (
+                      <button
+                        onClick={() => setSearchQuery('')}
+                        style={{
+                          position: 'absolute',
+                          right: 10,
+                          top: 10,
+                          background: 'none',
+                          border: 'none',
+                          cursor: 'pointer',
+                          color: 'var(--color-text-muted)',
+                          padding: 0,
+                        }}
+                      >
+                        <X size={14} />
+                      </button>
+                    )}
+                  </div>
+                </div>
+
+                {/* Date From */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                  <label style={{ fontSize: '0.78rem', fontWeight: 600, color: 'var(--color-text-muted)' }}>From Date</label>
+                  <input
+                    type="date"
+                    className="input"
+                    value={dateFrom}
+                    onChange={(e) => setDateFrom(e.target.value)}
+                  />
+                </div>
+
+                {/* Date To */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                  <label style={{ fontSize: '0.78rem', fontWeight: 600, color: 'var(--color-text-muted)' }}>To Date</label>
+                  <input
+                    type="date"
+                    className="input"
+                    value={dateTo}
+                    onChange={(e) => setDateTo(e.target.value)}
+                  />
+                </div>
+
+                {/* Skill Filter */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                  <label style={{ fontSize: '0.78rem', fontWeight: 600, color: 'var(--color-text-muted)' }}>Best Skill</label>
+                  <select
+                    className="select"
+                    value={skillFilter}
+                    onChange={(e) => setSkillFilter(e.target.value)}
+                  >
+                    <option value="">All Skills</option>
+                    {allSkills.map((skill) => (
+                      <option key={skill} value={skill}>{SKILL_LABELS[skill] || skill}</option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* Difficulty Filter */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                  <label style={{ fontSize: '0.78rem', fontWeight: 600, color: 'var(--color-text-muted)' }}>Difficulty</label>
+                  <select
+                    className="select"
+                    value={difficultyFilter}
+                    onChange={(e) => setDifficultyFilter(e.target.value)}
+                  >
+                    <option value="">All Levels</option>
+                    <option value="beginner">Beginner</option>
+                    <option value="intermediate">Intermediate</option>
+                    <option value="advanced">Advanced</option>
+                    <option value="competition">Competition</option>
+                  </select>
+                </div>
+
+                {/* Export Format */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                  <label style={{ fontSize: '0.78rem', fontWeight: 600, color: 'var(--color-text-muted)' }}>Export Format</label>
+                  <div style={{ display: 'flex', gap: 8 }}>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: 4, cursor: 'pointer' }}>
+                      <input
+                        type="radio"
+                        name="exportFormat"
+                        value="csv"
+                        checked={exportFormat === 'csv'}
+                        onChange={(e) => setExportFormat(e.target.value)}
+                      />
+                      <span style={{ fontSize: '0.85rem' }}>CSV</span>
+                    </label>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: 4, cursor: 'pointer' }}>
+                      <input
+                        type="radio"
+                        name="exportFormat"
+                        value="json"
+                        checked={exportFormat === 'json'}
+                        onChange={(e) => setExportFormat(e.target.value)}
+                      />
+                      <span style={{ fontSize: '0.85rem' }}>JSON</span>
+                    </label>
+                  </div>
+                </div>
+
+                {/* Clear Filters Button */}
+                {hasActiveFilters && (
+                  <div style={{ display: 'flex', alignItems: 'flex-end' }}>
+                    <button
+                      className="btn btn-ghost btn-sm"
+                      onClick={() => {
+                        setSearchQuery('');
+                        setDateFrom('');
+                        setDateTo('');
+                        setSkillFilter('');
+                        setDifficultyFilter('');
+                      }}
+                      style={{ color: 'var(--color-text-muted)' }}
+                    >
+                      Clear Filters
+                    </button>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
 
           {/* In-progress drafts */}
           {drafts.length > 0 && (
@@ -815,7 +1139,7 @@ export default function HistoryPage() {
           )}
 
           {/* Summary stats bar */}
-          {history.length > 0 && (
+          {filteredHistory.length > 0 && (
             <div
               className="card"
               style={{
@@ -828,8 +1152,8 @@ export default function HistoryPage() {
               }}
             >
               {[
-                { label: 'Sessions', value: stats.debatesPracticed, icon: <Swords size={16} color="var(--color-primary)" /> },
-                { label: 'Avg Score', value: `${stats.averageScore}/10`, icon: <Trophy size={16} color="var(--color-gold)" /> },
+                { label: 'Sessions', value: filteredHistory.length, icon: <Swords size={16} color="var(--color-primary)" /> },
+                { label: 'Avg Score', value: `${(filteredHistory.reduce((sum, d) => sum + (d.overallScore || 0), 0) / filteredHistory.length).toFixed(1)}/10`, icon: <Trophy size={16} color="var(--color-gold)" /> },
                 { label: 'Best Skill', value: stats.strongestSkill, icon: <TrendingUp size={16} color="var(--color-success)" /> },
                 { label: 'Streak', value: `${stats.currentStreak}d`, icon: <Target size={16} color="var(--color-danger)" /> },
               ].map((stat, i) => (
@@ -862,12 +1186,67 @@ export default function HistoryPage() {
             </div>
           )}
 
-          {/* Debate list */}
-          {history.length > 0 ? (
+          {/* Filtered debate list */}
+          <div style={{ marginBottom: 'var(--space-md)' }}>
+            <span style={{ fontSize: '0.8rem', color: 'var(--color-text-muted)' }}>
+              Showing {filteredHistory.length} of {history.length} session{history.length !== 1 ? 's' : ''}
+              {hasActiveFilters && <span style={{ marginLeft: 8, background: 'var(--color-primary-dim)', color: 'var(--color-primary)', padding: '2px 8px', borderRadius: 12, fontSize: '0.75rem' }}>Filters Active</span>}
+            </span>
+          </div>
+
+          {filteredHistory.length > 0 ? (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-md)' }}>
-              {history.map((debate, i) => (
+              {filteredHistory.map((debate, i) => (
                 <DebateCard key={debate.id} debate={debate} index={i} />
               ))}
+            </div>
+          ) : hasActiveFilters ? (
+            <div
+              style={{
+                padding: 'var(--space-3xl) var(--space-lg)',
+                background: 'var(--color-surface)',
+                border: '1px dashed var(--color-border)',
+                borderRadius: 'var(--radius-lg)',
+                textAlign: 'center',
+              }}
+            >
+              <Filter
+                size={48}
+                color="var(--color-text-muted)"
+                style={{ marginBottom: 'var(--space-lg)', opacity: 0.3 }}
+              />
+              <h3
+                style={{
+                  color: 'var(--color-text-secondary)',
+                  fontWeight: 600,
+                  marginBottom: 'var(--space-sm)',
+                }}
+              >
+                No debates match your filters
+              </h3>
+              <p
+                style={{
+                  color: 'var(--color-text-muted)',
+                  fontSize: '0.875rem',
+                  marginBottom: 'var(--space-xl)',
+                  maxWidth: 360,
+                  margin: '0 auto var(--space-xl)',
+                }}
+              >
+                Try adjusting your search, date range, skill, or difficulty filters.
+              </p>
+              <button
+                className="btn btn-primary"
+                onClick={() => {
+                  setSearchQuery('');
+                  setDateFrom('');
+                  setDateTo('');
+                  setSkillFilter('');
+                  setDifficultyFilter('');
+                }}
+              >
+                Clear Filters
+              </button>
             </div>
           ) : (
             <div
