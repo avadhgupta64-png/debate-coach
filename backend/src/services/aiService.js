@@ -705,6 +705,13 @@ Scoring guidelines (0-100):
 - 85-94: Very good — strong performance, minor refinements possible
 - 95-100: Excellent — near-perfect execution
 
+Evidence scoring rules (apply strictly):
+- Evidence must be scored LOW (below 55) if the debater made no specific factual claims, cited no data, statistics, studies, real-world examples, or named sources
+- A response that is purely opinion or assertion with no concrete evidence must score below 50 for evidence
+- Only score evidence above 80 if the debater cited specific, named facts, statistics, or real-world examples
+- Do NOT inflate evidence scores because the argument was logically coherent — logic and evidence are separate dimensions
+- Most student debate responses score 35-65 on evidence because they rarely cite hard data
+
 Rules:
 - detectedFallacies may be empty [] if none are found
 - Only flag genuine fallacies. If uncertain, use confidence: "potential"
@@ -791,6 +798,11 @@ Return this EXACT JSON:
 }
 
 Use the same 0-100 scoring scale as individual rounds.
+Evidence scoring rules (apply strictly):
+- Score evidence LOW (below 55) if the debater made no specific factual claims, cited no named data, statistics, studies, or real-world examples across the debate
+- Only score evidence above 80 if the debater consistently cited specific named facts or data points
+- Do NOT conflate logical coherence with evidence — they are separate dimensions
+- Most student debaters score 35-65 on evidence because they rarely cite hard data
 detectedFallacies can be empty [] if none found across the full debate.
 Only flag genuine fallacies. Err on the side of caution — use "potential" if uncertain.`;
 
