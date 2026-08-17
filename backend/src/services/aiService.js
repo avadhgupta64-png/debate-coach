@@ -705,12 +705,14 @@ Scoring guidelines (0-100):
 - 85-94: Very good — strong performance, minor refinements possible
 - 95-100: Excellent — near-perfect execution
 
-Evidence scoring rules (apply strictly):
-- Evidence must be scored LOW (below 55) if the debater made no specific factual claims, cited no data, statistics, studies, real-world examples, or named sources
-- A response that is purely opinion or assertion with no concrete evidence must score below 50 for evidence
-- Only score evidence above 80 if the debater cited specific, named facts, statistics, or real-world examples
-- Do NOT inflate evidence scores because the argument was logically coherent — logic and evidence are separate dimensions
-- Most student debate responses score 35-65 on evidence because they rarely cite hard data
+Evidence scoring calibration:
+- Evidence measures whether the debater cited specific facts, statistics, studies, or real-world examples to support their claims
+- Pure opinion or assertion with NO concrete supporting data: 30-45
+- General references to "studies" or "research" without specifics: 50-62
+- One or two concrete named examples or statistics: 63-75
+- Multiple specific, well-chosen data points or examples: 76-88
+- Exceptionally well-evidenced with precise citations and context: 89-100
+- Score evidence independently from logic — a logically coherent argument with no evidence still scores low on evidence
 
 Rules:
 - detectedFallacies may be empty [] if none are found
@@ -798,11 +800,10 @@ Return this EXACT JSON:
 }
 
 Use the same 0-100 scoring scale as individual rounds.
-Evidence scoring rules (apply strictly):
-- Score evidence LOW (below 55) if the debater made no specific factual claims, cited no named data, statistics, studies, or real-world examples across the debate
-- Only score evidence above 80 if the debater consistently cited specific named facts or data points
-- Do NOT conflate logical coherence with evidence — they are separate dimensions
-- Most student debaters score 35-65 on evidence because they rarely cite hard data
+Evidence scoring calibration:
+- Evidence measures whether the debater cited specific facts, statistics, studies, or real-world examples
+- Pure assertion with no supporting data: 30-45. Vague references to "research": 50-62. One or two concrete examples: 63-75. Multiple specific data points: 76-88. Exceptionally well-evidenced: 89-100
+- Score evidence independently from logic — a coherent argument with no evidence still scores low on evidence
 detectedFallacies can be empty [] if none found across the full debate.
 Only flag genuine fallacies. Err on the side of caution — use "potential" if uncertain.`;
 
