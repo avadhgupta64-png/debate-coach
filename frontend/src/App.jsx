@@ -248,6 +248,21 @@ export default function App() {
                     <main className="page-wrapper">
                       <AppRoutes />
                     </main>
+                    <footer
+                      style={{
+                        marginTop: 'auto',
+                        padding: 'var(--space-lg) var(--space-md)',
+                        background: 'var(--color-surface)',
+                        borderTop: '1px solid var(--color-border)',
+                        textAlign: 'center',
+                        fontSize: '0.85rem',
+                        color: 'var(--color-text-muted)',
+                      }}
+                    >
+                      <p style={{ margin: 0 }}>
+                        Debate Coach © 2026 — Founded & developed by Avadh Gupta
+                      </p>
+                    </footer>
                   </div>
                 </SplashGate>
               </SignInModalProvider>

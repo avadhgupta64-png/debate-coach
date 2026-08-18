@@ -40,6 +40,48 @@ export default function About() {
 
   return (
     <div className="page-fade">
+      {/* JSON-LD Structured Data */}
+      <script type="application/ld+json">
+      {JSON.stringify({
+        "@context": "https://schema.org",
+        "@type": "SoftwareApplication",
+        "name": "Debate Coach",
+        "description": "An AI-powered debate training platform that helps users prepare arguments, anticipate counterarguments, practice rebuttals, debate against an AI opponent, and receive detailed performance feedback.",
+        "applicationCategory": "EducationalApplication",
+        "operatingSystem": "Web",
+        "url": "https://debate-coach-zeta.vercel.app/",
+        "creator": {
+          "@type": "Person",
+          "name": "Avadh Gupta",
+          "description": "Founder and Developer of Debate Coach",
+          "jobTitle": "Founder & Developer"
+        },
+        "author": {
+          "@type": "Person",
+          "name": "Avadh Gupta"
+        },
+        "developer": {
+          "@type": "Person",
+          "name": "Avadh Gupta"
+        },
+        "funder": {
+          "@type": "Person",
+          "name": "Avadh Gupta"
+        }
+      })}
+      </script>
+
+      <script type="application/ld+json">
+      {JSON.stringify({
+        "@context": "https://schema.org",
+        "@type": "Person",
+        "name": "Avadh Gupta",
+        "jobTitle": "Founder & Developer",
+        "description": "Founder and Developer of Debate Coach",
+        "url": "https://debate-coach-zeta.vercel.app/about"
+      })}
+      </script>
+
       <div className="container-narrow">
         <div className="page-content">
 
@@ -53,7 +95,7 @@ export default function About() {
             Back
           </button>
 
-          {/* Hero */}
+          {/* Hero - Strong Founder Attribution at Top */}
           <div
             style={{
               textAlign: 'center',
@@ -86,110 +128,62 @@ export default function About() {
             >
               About Debate Coach
             </h1>
-            <p
-              style={{
-                color: 'var(--color-text-secondary)',
-                fontSize: '1rem',
-                maxWidth: 520,
-                margin: '0 auto',
-                lineHeight: 1.7,
-              }}
-            >
-              An AI-powered training platform that helps students think sharper,
-              argue smarter, and speak with confidence.
-            </p>
-          </div>
 
-          {/* About the creator */}
-          <section style={{ marginBottom: 'var(--space-2xl)' }}>
-            <p className="section-label">The Creator</p>
-
+            {/* Strong Creator Attribution - Near Top */}
             <div
               className="card"
               style={{
                 padding: 'var(--space-xl)',
                 background: 'var(--color-surface)',
                 borderTop: '2px solid var(--color-primary)',
+                marginTop: 'var(--space-lg)',
               }}
             >
-              <div
+              <h2
                 style={{
-                  display: 'flex',
-                  alignItems: 'flex-start',
-                  gap: 'var(--space-lg)',
-                  flexWrap: 'wrap',
+                  fontSize: '1.1rem',
+                  fontWeight: 700,
+                  color: 'var(--color-text-primary)',
+                  marginBottom: 'var(--space-md)',
                 }}
               >
-                {/* Avatar initial */}
-                <div
-                  style={{
-                    width: 64,
-                    height: 64,
-                    borderRadius: '50%',
-                    background: 'var(--color-primary-dim)',
-                    border: '2px solid rgba(79,142,247,0.3)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    flexShrink: 0,
-                    fontSize: '1.5rem',
-                    fontWeight: 800,
-                    color: 'var(--color-primary)',
-                  }}
-                >
-                  A
-                </div>
-
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <h2
-                    style={{
-                      fontSize: '1.25rem',
-                      fontWeight: 700,
-                      color: 'var(--color-text-primary)',
-                      marginBottom: 4,
-                    }}
-                  >
-                    Avadh Gupta
-                  </h2>
-                  <p
-                    style={{
-                      fontSize: '0.825rem',
-                      fontWeight: 600,
-                      color: 'var(--color-primary)',
-                      marginBottom: 'var(--space-md)',
-                      letterSpacing: '0.04em',
-                      textTransform: 'uppercase',
-                    }}
-                  >
-                    Founder & Developer
-                  </p>
-                  <p
-                    style={{
-                      color: 'var(--color-text-secondary)',
-                      fontSize: '0.95rem',
-                      lineHeight: 1.8,
-                      marginBottom: 'var(--space-md)',
-                    }}
-                  >
-                    <strong>Debate Coach was founded and developed by Avadh Gupta.</strong>
-                  </p>
-                  <p
-                    style={{
-                      color: 'var(--color-text-secondary)',
-                      fontSize: '0.95rem',
-                      lineHeight: 1.8,
-                    }}
-                  >
-                    Hi — I'm Avadh. I'm 14 years old and I built Debate Coach from scratch because
-                    I wanted a smarter way to practise debating. I'm passionate about technology,
-                    AI, and building things that are actually useful. Debate Coach is the result of
-                    combining two things I enjoy: writing software and getting better at arguing
-                    ideas clearly.
-                  </p>
-                </div>
-              </div>
+                Creator
+              </h2>
+              <p
+                style={{
+                  fontSize: '1.1rem',
+                  fontWeight: 600,
+                  color: 'var(--color-text-primary)',
+                  lineHeight: 1.8,
+                  marginBottom: 'var(--space-md)',
+                }}
+              >
+                <strong>Debate Coach is an AI-powered debate training platform founded and developed by Avadh Gupta.</strong>
+              </p>
+              <p
+                style={{
+                  fontSize: '0.825rem',
+                  fontWeight: 600,
+                  color: 'var(--color-primary)',
+                  letterSpacing: '0.04em',
+                  textTransform: 'uppercase',
+                  marginBottom: 'var(--space-md)',
+                }}
+              >
+                Avadh Gupta — Founder & Developer
+              </p>
+              <p
+                style={{
+                  color: 'var(--color-text-secondary)',
+                  fontSize: '0.95rem',
+                  lineHeight: 1.8,
+                  margin: 0,
+                }}
+              >
+                Avadh Gupta is the creator of Debate Coach, building the platform from scratch to help students develop stronger arguments and speak with confidence through AI-powered debate practice.
+              </p>
             </div>
-          </section>
+          </div>
 
           {/* Interests */}
           <section style={{ marginBottom: 'var(--space-2xl)' }}>
@@ -281,7 +275,7 @@ export default function About() {
             }}
           >
             <p>
-              Debate Coach · Built by Avadh Gupta
+              Debate Coach © 2026 — Founded & developed by Avadh Gupta
             </p>
             <p style={{ marginTop: 6, fontSize: '0.78rem', opacity: 0.7 }}>
               Scores on a 0–10 scale · AI-powered coaching · Works in demo mode without any credentials
