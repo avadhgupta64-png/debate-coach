@@ -161,7 +161,17 @@ export default function About() {
                       textTransform: 'uppercase',
                     }}
                   >
-                    Developer &amp; Designer · Age 14
+                    Founder & Developer
+                  </p>
+                  <p
+                    style={{
+                      color: 'var(--color-text-secondary)',
+                      fontSize: '0.95rem',
+                      lineHeight: 1.8,
+                      marginBottom: 'var(--space-md)',
+                    }}
+                  >
+                    <strong>Debate Coach was founded and developed by Avadh Gupta.</strong>
                   </p>
                   <p
                     style={{
