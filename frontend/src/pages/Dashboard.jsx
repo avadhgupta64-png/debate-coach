@@ -354,9 +354,6 @@ export default function Dashboard() {
         </div>
       </section>
 
-      {/* Ad — placed between hero and stats, away from all controls */}
-      <AdBanner />
-
       {/* Stats */}
       <section style={{ padding: 'var(--space-2xl) 0' }}>
         <div className="container">
@@ -549,6 +546,9 @@ export default function Dashboard() {
           )}
         </div>
       </section>
+
+      {/* Ad — bottom of page, after all useful content */}
+      <AdBanner />
     </div>
   );
 }
