@@ -23,6 +23,7 @@ import { useAuth } from '../contexts/AuthContext.jsx';
 import { useSignInModal } from '../App.jsx';
 import { useDebate } from '../App.jsx';
 import HeroCatapultAnimation from '../components/HeroCatapultAnimation.jsx';
+import AdBanner from '../components/AdBanner.jsx';
 
 const DIFFICULTY_COLORS = {
   beginner: 'var(--color-success)',
@@ -352,6 +353,9 @@ export default function Dashboard() {
           </div>
         </div>
       </section>
+
+      {/* Ad — placed between hero and stats, away from all controls */}
+      <AdBanner />
 
       {/* Stats */}
       <section style={{ padding: 'var(--space-2xl) 0' }}>
