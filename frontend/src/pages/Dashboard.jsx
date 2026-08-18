@@ -23,7 +23,6 @@ import { useAuth } from '../contexts/AuthContext.jsx';
 import { useSignInModal } from '../App.jsx';
 import { useDebate } from '../App.jsx';
 import HeroCatapultAnimation from '../components/HeroCatapultAnimation.jsx';
-import AdBanner from '../components/AdBanner.jsx';
 
 const DIFFICULTY_COLORS = {
   beginner: 'var(--color-success)',
@@ -546,9 +545,6 @@ export default function Dashboard() {
           )}
         </div>
       </section>
-
-      {/* Ad — bottom of page, after all useful content */}
-      <AdBanner />
     </div>
   );
 }
