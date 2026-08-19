@@ -91,5 +91,20 @@
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
+    
+    <!-- Service Worker Registration (optional for PWA) -->
+    <script>
+      if ('serviceWorker' in navigator && window.location.protocol === 'https:') {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/sw.js')
+            .then(registration => {
+              console.log('SW registered:', registration.scope);
+            })
+            .catch(err => {
+              console.log('SW registration skipped (sw.js not generated yet):', err.message);
+            });
+        });
+      }
+    </script>
   </body>
 </html>

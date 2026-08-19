@@ -5,8 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build && workbox generate:sw",
-    "build:sw": "workbox generate:sw",
+    "build": "vite build && node workbox.generator.mjs",
+    "build:sw": "node workbox.generator.mjs",
     "preview": "vite preview"
   },
   "dependencies": {
@@ -20,6 +20,6 @@
     "@frontman-ai/vite": "^1.0.4",
     "@vitejs/plugin-react": "4.3.1",
     "vite": "5.3.1",
-    "workbox-cli": "^7.0.0"
+    "workbox-build": "^7.4.1"
   }
 }
