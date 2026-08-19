@@ -205,20 +205,30 @@ function AppRoutes() {
 }
 
 // ─── Splash Gate ─────────────────────────────────────────────────────────────
-// Shows the splash screen once per browser session (sessionStorage flag).
-// Once done, renders the main app shell.
+// Shows the splash screen on fresh app launches (PWA install or first visit).
+// Uses localStorage timestamp to show splash once per day or after app updates.
 
-const SPLASH_KEY = 'dc_splash_seen';
+const SPLASH_KEY = 'dc_splash_timestamp';
+const DAY_MS = 24 * 60 * 60 * 1000;
 
 function SplashGate({ children }) {
-  const alreadySeen = typeof sessionStorage !== 'undefined'
-    ? sessionStorage.getItem(SPLASH_KEY) === '1'
-    : true;
-
-  const [splashDone, setSplashDone] = useState(alreadySeen);
+  const [splashDone, setSplashDone] = useState(() => {
+    if (typeof localStorage === 'undefined') return true;
+    
+    const lastSplash = localStorage.getItem(SPLASH_KEY);
+    if (!lastSplash) return false; // First time - show splash
+    
+    const now = Date.now();
+    const timeSinceSplash = now - parseInt(lastSplash, 10);
+    
+    // Show splash if more than a day has passed or this is a new PWA install
+    return timeSinceSplash < DAY_MS;
+  });
 
   const handleSplashDone = useCallback(() => {
-    sessionStorage.setItem(SPLASH_KEY, '1');
+    if (typeof localStorage !== 'undefined') {
+      localStorage.setItem(SPLASH_KEY, Date.now().toString());
+    }
     setSplashDone(true);
   }, []);
 
