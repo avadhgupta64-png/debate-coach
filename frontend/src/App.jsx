@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import { SpeedInsights } from '@vercel/speed-insights/react';
 import Navbar from './components/Navbar.jsx';
 import Toast from './components/Toast.jsx';
 import SplashScreen from './components/SplashScreen.jsx';
@@ -204,7 +205,7 @@ function AppRoutes() {
   );
 }
 
-// ─── Splash Gate ─────────────────────────────────────────────────────────────
+// ��── Splash Gate ─────────────────────────────────────────────────────────────
 // Shows the splash screen once per browser session (sessionStorage flag).
 // Once done, renders the main app shell.
 
@@ -270,6 +271,7 @@ export default function App() {
           </ToastProvider>
         </GuestProvider>
       </AuthProvider>
+      <SpeedInsights />
     </BrowserRouter>
   );
 }
