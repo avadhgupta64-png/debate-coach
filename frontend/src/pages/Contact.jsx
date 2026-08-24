@@ -81,7 +81,7 @@ export default function Contact() {
                   For general enquiries, feedback, bug reports, or data/privacy requests.
                 </p>
                 <a
-                  href="mailto:contact@debatecoach.app"
+                  href="mailto:avadhgupta64@gmail.com"
                   style={{
                     display: 'inline-flex',
                     alignItems: 'center',
@@ -92,7 +92,7 @@ export default function Contact() {
                     textDecoration: 'none',
                   }}
                 >
-                  contact@debatecoach.app <ExternalLink size={13} />
+                  avadhgupta64@gmail.com <ExternalLink size={13} />
                 </a>
               </div>
             </div>
@@ -130,7 +130,7 @@ export default function Contact() {
                   to get it tracked and addressed.
                 </p>
                 <a
-                  href="https://github.com/avadhgupta/debate-coach/issues"
+                  href="https://github.com/avadhgupta64-png/debate-coach/issues"
                   target="_blank"
                   rel="noopener noreferrer"
                   style={{
