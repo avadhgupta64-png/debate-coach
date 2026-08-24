@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Menu, X, Home, Plus, History, LogOut, User as UserIcon, Info, Brain } from 'lucide-react';
+import { Menu, X, Home, Plus, History, LogOut, User as UserIcon, Info, Brain, BookOpen } from 'lucide-react';
 import debateCoachLogo from '/debate-coach-logo.png';
 import { useAuth } from '../contexts/AuthContext.jsx';
 import { useGuest } from '../contexts/GuestContext.jsx';
@@ -40,8 +40,8 @@ export default function Navbar() {
     { to: '/', label: 'Dashboard', icon: <Home size={16} /> },
     { to: '/history', label: 'History', icon: <History size={16} /> },
     { to: '/profile', label: 'My Profile', icon: <Brain size={16} /> },
+    { to: '/resources', label: 'Resources', icon: <BookOpen size={16} /> },
     { to: '/about', label: 'About', icon: <Info size={16} /> },
-    { to: '/setup', label: 'New Debate', icon: <Plus size={16} /> },
   ];
 
   const isActive = (to) =>

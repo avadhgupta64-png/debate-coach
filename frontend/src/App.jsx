@@ -12,6 +12,10 @@ import Results from './pages/Results.jsx';
 import HistoryPage from './pages/History.jsx';
 import Login from './pages/Login.jsx';
 import About from './pages/About.jsx';
+import Resources from './pages/Resources.jsx';
+import Privacy from './pages/Privacy.jsx';
+import Terms from './pages/Terms.jsx';
+import Contact from './pages/Contact.jsx';
 import DebateProfile from './pages/DebateProfile.jsx';
 import { AuthProvider, useAuth } from './contexts/AuthContext.jsx';
 import { GuestProvider, useGuest } from './contexts/GuestContext.jsx';
@@ -197,6 +201,10 @@ function AppRoutes() {
       <Route path="/history"    element={<ProtectedRoute><HistoryPage /></ProtectedRoute>} />
       <Route path="/profile"    element={<ProtectedRoute><DebateProfile /></ProtectedRoute>} />
       <Route path="/about"      element={<About />} />
+      <Route path="/resources"  element={<Resources />} />
+      <Route path="/privacy"    element={<Privacy />} />
+      <Route path="/terms"      element={<Terms />} />
+      <Route path="/contact"    element={<Contact />} />
 
       {/* Fallback */}
       <Route path="*" element={<Navigate to="/" replace />} />
@@ -261,17 +269,60 @@ export default function App() {
                     <footer
                       style={{
                         marginTop: 'auto',
-                        padding: 'var(--space-lg) var(--space-md)',
+                        padding: 'var(--space-xl) var(--space-md)',
                         background: 'var(--color-surface)',
                         borderTop: '1px solid var(--color-border)',
-                        textAlign: 'center',
                         fontSize: '0.85rem',
                         color: 'var(--color-text-muted)',
                       }}
                     >
-                      <p style={{ margin: 0 }}>
-                        Debate Coach © 2026 — Founded & developed by Avadh Gupta
-                      </p>
+                      <div
+                        style={{
+                          maxWidth: 'var(--content-max)',
+                          margin: '0 auto',
+                          display: 'flex',
+                          flexDirection: 'column',
+                          gap: 'var(--space-md)',
+                          alignItems: 'center',
+                        }}
+                      >
+                        {/* Footer nav links */}
+                        <div
+                          style={{
+                            display: 'flex',
+                            flexWrap: 'wrap',
+                            gap: 'var(--space-md)',
+                            justifyContent: 'center',
+                          }}
+                        >
+                          {[
+                            { to: '/about', label: 'About' },
+                            { to: '/resources', label: 'Resources' },
+                            { to: '/contact', label: 'Contact' },
+                            { to: '/privacy', label: 'Privacy Policy' },
+                            { to: '/terms', label: 'Terms of Service' },
+                          ].map((link) => (
+                            <a
+                              key={link.to}
+                              href={link.to}
+                              style={{
+                                color: 'var(--color-text-muted)',
+                                textDecoration: 'none',
+                                fontSize: '0.82rem',
+                                transition: 'color var(--transition-fast)',
+                              }}
+                              onMouseEnter={(e) => { e.currentTarget.style.color = 'var(--color-text-secondary)'; }}
+                              onMouseLeave={(e) => { e.currentTarget.style.color = 'var(--color-text-muted)'; }}
+                            >
+                              {link.label}
+                            </a>
+                          ))}
+                        </div>
+                        {/* Copyright */}
+                        <p style={{ margin: 0, textAlign: 'center', fontSize: '0.8rem' }}>
+                          Debate Coach © 2026 — Founded &amp; developed by Avadh Gupta
+                        </p>
+                      </div>
                     </footer>
                   </div>
                 </SplashGate>
