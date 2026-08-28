@@ -13,6 +13,11 @@ import {
   Clock,
   PlayCircle,
   Trash2,
+  Zap,
+  Brain,
+  ShieldCheck,
+  MessageSquare,
+  CheckCircle2,
 } from 'lucide-react';
 import { useDebateHistory } from '../hooks/useDebateHistory.js';
 import { useDraftDebate } from '../hooks/useDraftDebate.js';
@@ -276,7 +281,7 @@ export default function Dashboard() {
                   marginBottom: 'var(--space-md)',
                 }}
               >
-                Sharpen your argument.{' '}
+                Argue better.{' '}
                 <span
                   style={{
                     background: 'linear-gradient(135deg, var(--color-primary), var(--color-accent))',
@@ -285,7 +290,7 @@ export default function Dashboard() {
                     backgroundClip: 'text',
                   }}
                 >
-                  Own the room
+                  Win every room
                 </span>
                 {/*
                   The period is the projectile. The animation hides it via
@@ -316,24 +321,40 @@ export default function Dashboard() {
                   maxWidth: 460,
                 }}
               >
-                Practice debates, anticipate counterarguments, and become harder to challenge.
+                Debate a sharp AI opponent, get instant round-by-round coaching, and leave a stronger speaker — in under 30 minutes.
               </p>
 
-              <div style={{ display: 'flex', gap: 'var(--space-md)', flexWrap: 'wrap' }}>
+              <div className="hero-cta-group" style={{ display: 'flex', gap: 'var(--space-md)', flexWrap: 'wrap', alignItems: 'center' }}>
                 <button
                   className="btn btn-primary btn-lg"
                   onClick={startDebate}
+                  style={{ minWidth: 200 }}
                 >
                   <Swords size={18} />
-                  Start a Debate
+                  Start Your First Debate
+                  <ArrowRight size={16} />
                 </button>
                 <button
-                  className="btn btn-secondary btn-lg"
+                  className="btn btn-ghost btn-lg"
                   onClick={() => navigate('/history')}
+                  style={{ color: 'var(--color-text-secondary)' }}
                 >
                   <History size={18} />
-                  View History
+                  My History
                 </button>
+              </div>
+
+              {/* Social proof strip */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-md)', marginTop: 'var(--space-lg)', flexWrap: 'wrap' }}>
+                {[
+                  { icon: <CheckCircle2 size={13} color="var(--color-success)" />, text: 'Free to start' },
+                  { icon: <CheckCircle2 size={13} color="var(--color-success)" />, text: 'No prep needed' },
+                  { icon: <CheckCircle2 size={13} color="var(--color-success)" />, text: 'Results in 30 min' },
+                ].map(({ icon, text }) => (
+                  <span key={text} style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: '0.8rem', color: 'var(--color-text-muted)' }}>
+                    {icon}{text}
+                  </span>
+                ))}
               </div>
             </div>
 
@@ -353,11 +374,242 @@ export default function Dashboard() {
         </div>
       </section>
 
+      {/* ── How it works ────────────────────────────────────────────────────── */}
+      {history.length === 0 && (
+        <section
+          style={{
+            padding: 'var(--space-3xl) 0',
+            borderBottom: '1px solid var(--color-border)',
+          }}
+        >
+          <div className="container">
+            <div style={{ textAlign: 'center', marginBottom: 'var(--space-2xl)' }}>
+              <p className="section-label">How it works</p>
+              <h2
+                style={{
+                  fontSize: 'clamp(1.4rem, 2.5vw, 1.9rem)',
+                  fontWeight: 700,
+                  color: 'var(--color-text-primary)',
+                  marginBottom: 'var(--space-sm)',
+                }}
+              >
+                From zero to confident debater in 3 steps
+              </h2>
+              <p style={{ fontSize: '0.9rem', color: 'var(--color-text-muted)', maxWidth: 440, margin: '0 auto' }}>
+                No prep, no partner, no problem. Just pick a topic and go.
+              </p>
+            </div>
+
+            <div
+              style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
+                gap: 'var(--space-lg)',
+                position: 'relative',
+              }}
+            >
+              {[
+                {
+                  step: 1,
+                  icon: <Target size={22} color="var(--color-primary)" />,
+                  color: 'var(--color-primary)',
+                  title: 'Pick your topic',
+                  desc: 'Choose any topic or hit "Suggest a Topic" for an instant pick. Set your position and difficulty.',
+                },
+                {
+                  step: 2,
+                  icon: <MessageSquare size={22} color="var(--color-accent)" />,
+                  color: 'var(--color-accent)',
+                  title: 'Debate the AI',
+                  desc: '5 focused rounds against an AI that challenges, presses, and adapts to your arguments in real time.',
+                },
+                {
+                  step: 3,
+                  icon: <TrendingUp size={22} color="var(--color-success)" />,
+                  color: 'var(--color-success)',
+                  title: 'Get your verdict',
+                  desc: 'See if you won, get a score breakdown, your key strength, one targeted fix, and a coach note.',
+                },
+              ].map(({ step, icon, color, title, desc }) => (
+                <div
+                  key={step}
+                  className="card"
+                  style={{
+                    position: 'relative',
+                    paddingTop: 'var(--space-xl)',
+                    borderTop: `2px solid ${color}`,
+                  }}
+                >
+                  {/* Step number pill */}
+                  <div
+                    style={{
+                      position: 'absolute',
+                      top: -14,
+                      left: 'var(--space-lg)',
+                      width: 28,
+                      height: 28,
+                      borderRadius: '50%',
+                      background: color,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      fontSize: '0.75rem',
+                      fontWeight: 800,
+                      color: '#fff',
+                      boxShadow: `0 0 12px ${color}60`,
+                    }}
+                  >
+                    {step}
+                  </div>
+                  <div
+                    style={{
+                      width: 44,
+                      height: 44,
+                      borderRadius: 'var(--radius-md)',
+                      background: `${color}18`,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      marginBottom: 'var(--space-md)',
+                    }}
+                  >
+                    {icon}
+                  </div>
+                  <h3
+                    style={{
+                      fontSize: '0.95rem',
+                      fontWeight: 700,
+                      color: 'var(--color-text-primary)',
+                      marginBottom: 'var(--space-sm)',
+                    }}
+                  >
+                    {title}
+                  </h3>
+                  <p style={{ fontSize: '0.875rem', color: 'var(--color-text-secondary)', lineHeight: 1.6 }}>
+                    {desc}
+                  </p>
+                </div>
+              ))}
+            </div>
+
+            <div style={{ textAlign: 'center', marginTop: 'var(--space-2xl)' }}>
+              <button className="btn btn-primary btn-lg" onClick={startDebate}>
+                <Swords size={18} />
+                Try your first debate
+                <ArrowRight size={16} />
+              </button>
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* ── Benefits ─────────────────────────────────────────────────────────── */}
+      {history.length === 0 && (
+        <section style={{ padding: 'var(--space-3xl) 0', borderBottom: '1px solid var(--color-border)' }}>
+          <div className="container">
+            <div style={{ textAlign: 'center', marginBottom: 'var(--space-xl)' }}>
+              <p className="section-label" style={{ display: 'block' }}>Why Debate Coach</p>
+              <h2
+                style={{
+                  fontSize: 'clamp(1.4rem, 2.5vw, 1.9rem)',
+                  fontWeight: 700,
+                  color: 'var(--color-text-primary)',
+                  marginBottom: 'var(--space-sm)',
+                }}
+              >
+                Built for people who want to win arguments
+              </h2>
+              <p style={{ fontSize: '0.9rem', color: 'var(--color-text-muted)', maxWidth: 420, margin: '0 auto' }}>
+                Not just a chatbot — a structured training system with real feedback.
+              </p>
+            </div>
+            <div
+              style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
+                gap: 'var(--space-lg)',
+              }}
+            >
+              {[
+                {
+                  icon: <Brain size={20} color="var(--color-gold)" />,
+                  color: 'var(--color-gold)',
+                  title: 'Real debate formats',
+                  desc: 'Structured rounds mirror school, parliamentary, MUN, and casual practice — so skills transfer to real life.',
+                },
+                {
+                  icon: <Zap size={20} color="var(--color-primary)" />,
+                  color: 'var(--color-primary)',
+                  title: 'Instant, specific feedback',
+                  desc: 'Every response is scored on logic, evidence, clarity, and persuasiveness — with one actionable note per round.',
+                },
+                {
+                  icon: <ShieldCheck size={20} color="var(--color-success)" />,
+                  color: 'var(--color-success)',
+                  title: 'Track your improvement',
+                  desc: 'History, skill scores, and streaks are saved so you can see exactly how far you\'ve come.',
+                },
+              ].map(({ icon, color, title, desc }) => (
+                <div
+                  key={title}
+                  style={{
+                    display: 'flex',
+                    gap: 'var(--space-md)',
+                    padding: 'var(--space-lg)',
+                    background: 'var(--color-surface)',
+                    border: '1px solid var(--color-border)',
+                    borderTop: `2px solid ${color}`,
+                    borderRadius: 'var(--radius-lg)',
+                    alignItems: 'flex-start',
+                  }}
+                >
+                  <div
+                    style={{
+                      width: 40,
+                      height: 40,
+                      borderRadius: 'var(--radius-md)',
+                      background: `${color}15`,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      flexShrink: 0,
+                    }}
+                  >
+                    {icon}
+                  </div>
+                  <div>
+                    <h3
+                      style={{
+                        fontSize: '0.9rem',
+                        fontWeight: 700,
+                        color: 'var(--color-text-primary)',
+                        marginBottom: 'var(--space-xs)',
+                      }}
+                    >
+                      {title}
+                    </h3>
+                    <p style={{ fontSize: '0.85rem', color: 'var(--color-text-secondary)', lineHeight: 1.65 }}>
+                      {desc}
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
       {/* Stats */}
       <section style={{ padding: 'var(--space-2xl) 0' }}>
         <div className="container">
           <p className="section-label">Your Progress</p>
-          <div className="grid-2" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))' }}>
+          <div
+            style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))',
+              gap: 'var(--space-md)',
+            }}
+          >
             <StatCard
               icon={<Swords size={20} color="var(--color-primary)" />}
               label="Debates Practiced"
@@ -527,19 +779,23 @@ export default function Dashboard() {
             <div
               style={{
                 marginTop: 'var(--space-lg)',
-                padding: 'var(--space-lg)',
-                background: 'var(--color-surface)',
-                border: '1px dashed var(--color-border)',
+                padding: 'var(--space-xl) var(--space-lg)',
+                background: 'linear-gradient(135deg, rgba(79,142,247,0.07) 0%, rgba(124,106,245,0.07) 100%)',
+                border: '1px solid rgba(79,142,247,0.18)',
                 borderRadius: 'var(--radius-lg)',
                 textAlign: 'center',
               }}
             >
-              <p style={{ color: 'var(--color-text-muted)', fontSize: '0.875rem', marginBottom: 'var(--space-md)' }}>
-                Ready to push further?
+              <p style={{ color: 'var(--color-text-primary)', fontWeight: 600, marginBottom: 'var(--space-sm)' }}>
+                Ready to push your score higher?
               </p>
-              <button className="btn btn-primary" onClick={startDebate}>
-                <Swords size={16} />
+              <p style={{ color: 'var(--color-text-muted)', fontSize: '0.875rem', marginBottom: 'var(--space-lg)' }}>
+                Each session sharpens a different skill. Start another debate to keep the streak going.
+              </p>
+              <button className="btn btn-primary btn-lg" onClick={startDebate}>
+                <Swords size={18} />
                 Start a New Debate
+                <ArrowRight size={16} />
               </button>
             </div>
           )}

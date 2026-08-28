@@ -403,11 +403,24 @@ a:hover { color: var(--color-primary-hover); }
   .hide-mobile { display: none !important; }
   .container, .container-narrow { padding: 0 var(--space-md); }
   .page-content { padding: var(--space-xl) 0; }
+  /* Hero section: tighter vertical padding on mobile */
+  .hero-section { padding: var(--space-2xl) 0 var(--space-xl) !important; }
+  /* How-it-works step number pill: keep it relative to card edge on narrow screens */
+  .step-pill { left: var(--space-md) !important; }
+  /* Benefit cards: reduce padding on mobile */
+  .benefit-card { padding: var(--space-md) !important; }
+  /* Social proof strip: stack below buttons */
+  .social-proof-strip { margin-top: var(--space-md) !important; }
+  /* CTA buttons: full width on small screens */
+  .hero-cta-group { flex-direction: column; align-items: stretch; }
+  .hero-cta-group .btn { justify-content: center; }
 }
 
 @media (max-width: 480px) {
   :root { --space-lg: 20px; }
-  .btn-lg { padding: 12px 20px; }
+  .btn-lg { padding: 12px 20px; font-size: 0.9rem; }
+  /* Stack hero CTA tightly */
+  .hero-cta-group { gap: var(--space-sm) !important; }
 }
 
 /* --- Page fade-in --- */

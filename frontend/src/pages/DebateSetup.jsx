@@ -9,11 +9,69 @@ import {
   Clock,
   ChevronDown,
   AlertCircle,
+  Shuffle,
+  X,
 } from 'lucide-react';
 import { useDebate } from '../App.jsx';
 import { useToast } from '../App.jsx';
 import { SUGGESTED_TOPICS, DIFFICULTIES, DEBATE_TYPES, TIME_LIMITS } from '../data/mockData.js';
 import { useDocumentTitle } from '../hooks/useDocumentTitle.js';
+
+// Categorised topic groups for the suggestion panel
+const TOPIC_CATEGORIES = [
+  {
+    label: 'Technology',
+    color: 'var(--color-primary)',
+    topics: [
+      'Should AI be allowed in schools?',
+      'Should governments regulate the use of AI in hiring decisions?',
+      'Should social media platforms be held legally responsible for misinformation?',
+      'Is technology making us more isolated?',
+      'Should smartphones be banned in schools?',
+    ],
+  },
+  {
+    label: 'Environment',
+    color: 'var(--color-success)',
+    topics: [
+      'Is nuclear energy a viable climate solution?',
+      'Is space exploration worth the cost?',
+      'Should wealthy nations pay reparations for climate change?',
+      'Should eating meat be taxed to fight climate change?',
+    ],
+  },
+  {
+    label: 'Society & Politics',
+    color: 'var(--color-accent)',
+    topics: [
+      'Should voting be mandatory?',
+      'Should the voting age be lowered to 16?',
+      'Should social media have age restrictions?',
+      'Is civil disobedience ever justified?',
+      'Should billionaires exist?',
+    ],
+  },
+  {
+    label: 'Education & Work',
+    color: 'var(--color-gold)',
+    topics: [
+      'Should homework be abolished?',
+      'Should school uniforms be mandatory?',
+      'Should university education be free?',
+      'Is remote work better than office work?',
+      'Should a four-day work week become the global standard?',
+    ],
+  },
+  {
+    label: 'Ethics',
+    color: 'var(--color-warning)',
+    topics: [
+      'Should animals have the same rights as humans?',
+      'Is privacy more important than security?',
+      'Should gene editing in humans be allowed?',
+    ],
+  },
+];
 
 const POSITION_OPTIONS = [
   { value: 'for', label: 'For', desc: 'Argue in favour', icon: <ThumbsUp size={18} /> },
@@ -99,6 +157,21 @@ export default function DebateSetup() {
   const [timeLimit, setTimeLimit] = useState(5);
   const [topicError, setTopicError] = useState('');
   const [showSuggestions, setShowSuggestions] = useState(false);
+  const [suggestPulse, setSuggestPulse] = useState(false);
+
+  const handleSuggestRandom = () => {
+    // Flatten all categories so we get every topic as a pool
+    const allTopics = TOPIC_CATEGORIES.flatMap((c) => c.topics);
+    const current = topic.trim();
+    const pool = allTopics.filter((t) => t !== current);
+    const pick = pool[Math.floor(Math.random() * pool.length)];
+    setTopic(pick);
+    setTopicError('');
+    setShowSuggestions(false);
+    // brief pulse animation to signal the new value
+    setSuggestPulse(true);
+    setTimeout(() => setSuggestPulse(false), 600);
+  };
 
   const validateTopic = (value) => {
     if (!value.trim()) return 'Please enter a debate topic.';
@@ -162,7 +235,46 @@ export default function DebateSetup() {
           <form onSubmit={handleSubmit}>
             {/* Topic */}
             <div className="form-group">
-              <label className="label" htmlFor="topic">Debate Topic *</label>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 'var(--space-xs)' }}>
+                <label className="label" htmlFor="topic" style={{ margin: 0 }}>Debate Topic *</label>
+                <div style={{ display: 'flex', gap: 'var(--space-xs)', alignItems: 'center' }}>
+                  <button
+                    type="button"
+                    className="btn btn-ghost btn-sm"
+                    style={{
+                      gap: 6,
+                      color: 'var(--color-primary)',
+                      fontWeight: 600,
+                      border: '1px solid rgba(79,142,247,0.25)',
+                      background: 'var(--color-primary-dim)',
+                      transition: 'all var(--transition-fast)',
+                      transform: suggestPulse ? 'scale(0.94)' : 'scale(1)',
+                    }}
+                    onClick={handleSuggestRandom}
+                    title="Pick a random debate topic"
+                  >
+                    <Shuffle size={13} />
+                    Suggest a Topic
+                  </button>
+                  <button
+                    type="button"
+                    className="btn btn-ghost btn-sm"
+                    style={{ gap: 5, color: 'var(--color-text-muted)' }}
+                    onClick={() => setShowSuggestions(!showSuggestions)}
+                    title="Browse topics by category"
+                  >
+                    <Lightbulb size={13} />
+                    Browse
+                    <ChevronDown
+                      size={12}
+                      style={{
+                        transform: showSuggestions ? 'rotate(180deg)' : 'none',
+                        transition: 'transform 0.2s',
+                      }}
+                    />
+                  </button>
+                </div>
+              </div>
               <div style={{ position: 'relative' }}>
                 <textarea
                   id="topic"
@@ -170,7 +282,8 @@ export default function DebateSetup() {
                   style={{
                     minHeight: 80,
                     resize: 'none',
-                    borderColor: topicError ? 'var(--color-danger)' : undefined,
+                    borderColor: topicError ? 'var(--color-danger)' : suggestPulse ? 'var(--color-primary)' : undefined,
+                    transition: 'border-color 0.3s',
                   }}
                   placeholder="e.g. Should AI be allowed in schools?"
                   value={topic}
@@ -194,30 +307,7 @@ export default function DebateSetup() {
                     {topicError}
                   </div>
                 )}
-                <div
-                  style={{
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    marginTop: 8,
-                    alignItems: 'center',
-                  }}
-                >
-                  <button
-                    type="button"
-                    className="btn btn-ghost btn-sm"
-                    style={{ gap: 6 }}
-                    onClick={() => setShowSuggestions(!showSuggestions)}
-                  >
-                    <Lightbulb size={14} />
-                    Suggested topics
-                    <ChevronDown
-                      size={13}
-                      style={{
-                        transform: showSuggestions ? 'rotate(180deg)' : 'none',
-                        transition: 'transform 0.2s',
-                      }}
-                    />
-                  </button>
+                <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 6 }}>
                   <span style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>
                     {topic.length}/300
                   </span>
@@ -229,39 +319,81 @@ export default function DebateSetup() {
                       marginTop: 'var(--space-sm)',
                       background: 'var(--color-surface-2)',
                       border: '1px solid var(--color-border)',
-                      borderRadius: 'var(--radius-md)',
-                      overflow: 'hidden',
+                      borderRadius: 'var(--radius-lg)',
+                      padding: 'var(--space-md)',
                     }}
                   >
-                    {SUGGESTED_TOPICS.map((t) => (
+                    {/* Header row */}
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 'var(--space-md)' }}>
+                      <span style={{ fontSize: '0.78rem', fontWeight: 700, color: 'var(--color-text-muted)', textTransform: 'uppercase', letterSpacing: '0.07em' }}>
+                        Pick a topic
+                      </span>
                       <button
-                        key={t}
                         type="button"
-                        onClick={() => handleSuggest(t)}
-                        style={{
-                          width: '100%',
-                          padding: '11px 16px',
-                          background: 'transparent',
-                          border: 'none',
-                          borderBottom: '1px solid var(--color-border)',
-                          textAlign: 'left',
-                          cursor: 'pointer',
-                          fontSize: '0.875rem',
-                          color: 'var(--color-text-secondary)',
-                          transition: 'all var(--transition-fast)',
-                        }}
-                        onMouseEnter={(e) => {
-                          e.currentTarget.style.background = 'var(--color-surface-3)';
-                          e.currentTarget.style.color = 'var(--color-text-primary)';
-                        }}
-                        onMouseLeave={(e) => {
-                          e.currentTarget.style.background = 'transparent';
-                          e.currentTarget.style.color = 'var(--color-text-secondary)';
-                        }}
+                        className="btn btn-ghost btn-sm"
+                        style={{ padding: '2px 6px', color: 'var(--color-text-muted)' }}
+                        onClick={() => setShowSuggestions(false)}
+                        title="Close"
                       >
-                        {t}
+                        <X size={14} />
                       </button>
-                    ))}
+                    </div>
+
+                    {/* Category sections */}
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-md)' }}>
+                      {TOPIC_CATEGORIES.map(({ label, color, topics }) => (
+                        <div key={label}>
+                          <p style={{
+                            fontSize: '0.7rem',
+                            fontWeight: 700,
+                            color,
+                            textTransform: 'uppercase',
+                            letterSpacing: '0.08em',
+                            marginBottom: 'var(--space-xs)',
+                          }}>
+                            {label}
+                          </p>
+                          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+                            {topics.map((t) => (
+                              <button
+                                key={t}
+                                type="button"
+                                onClick={() => handleSuggest(t)}
+                                style={{
+                                  padding: '6px 12px',
+                                  background: topic === t ? `${color}20` : 'var(--color-surface-3)',
+                                  border: `1px solid ${topic === t ? color : 'var(--color-border)'}`,
+                                  borderRadius: 'var(--radius-full)',
+                                  cursor: 'pointer',
+                                  fontSize: '0.8rem',
+                                  color: topic === t ? color : 'var(--color-text-secondary)',
+                                  fontWeight: topic === t ? 600 : 400,
+                                  transition: 'all var(--transition-fast)',
+                                  textAlign: 'left',
+                                  lineHeight: 1.4,
+                                }}
+                                onMouseEnter={(e) => {
+                                  if (topic !== t) {
+                                    e.currentTarget.style.borderColor = color;
+                                    e.currentTarget.style.color = color;
+                                    e.currentTarget.style.background = `${color}12`;
+                                  }
+                                }}
+                                onMouseLeave={(e) => {
+                                  if (topic !== t) {
+                                    e.currentTarget.style.borderColor = 'var(--color-border)';
+                                    e.currentTarget.style.color = 'var(--color-text-secondary)';
+                                    e.currentTarget.style.background = 'var(--color-surface-3)';
+                                  }
+                                }}
+                              >
+                                {t}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 )}
               </div>

@@ -16,6 +16,9 @@ import {
   TrendingDown,
   Lightbulb,
   AlertCircle,
+  CheckCircle2,
+  ArrowUpCircle,
+  Swords,
 } from 'lucide-react';
 import { useDebate } from '../App.jsx';
 import { useDocumentTitle } from '../hooks/useDocumentTitle.js';
@@ -106,6 +109,168 @@ function FallacyCard({ fallacy, index }) {
           <p style={{ fontSize: '0.82rem', color: 'var(--color-text-secondary)', lineHeight: 1.5 }}>{fallacy.improvement}</p>
         </div>
       )}
+    </div>
+  );
+}
+
+// ─── Debate Summary Card ──────────────────────────────────────────────────────
+
+function DebateSummaryCard({ score, strengths, weaknesses, onDebateAgain }) {
+  const norm = typeof score === 'number' && score > 10 ? score / 10 : (score ?? 0);
+  const pct = norm * 10;
+
+  // Winner declaration
+  const winResult =
+    pct >= 75 ? { label: 'You won the debate', color: 'var(--color-success)', icon: '🏆' } :
+    pct >= 55 ? { label: 'A close contest', color: 'var(--color-primary)', icon: '⚔️' } :
+                { label: 'The AI edged this one', color: 'var(--color-warning)', icon: '🎯' };
+
+  const resultLabel =
+    pct >= 80 ? 'Strong performance' :
+    pct >= 65 ? 'Solid effort' :
+    pct >= 50 ? 'Room to grow' :
+    'Keep practising';
+
+  const resultColor =
+    pct >= 80 ? 'var(--color-success)' :
+    pct >= 65 ? 'var(--color-primary)' :
+    pct >= 50 ? 'var(--color-warning)' :
+    'var(--color-danger)';
+
+  const keyStrength = strengths?.[0] ?? null;
+  const keyImprovement = weaknesses?.[0] ?? null;
+
+  return (
+    <div
+      style={{
+        background: 'var(--color-surface)',
+        border: '1px solid var(--color-border)',
+        borderRadius: 'var(--radius-lg)',
+        overflow: 'hidden',
+        marginBottom: 'var(--space-2xl)',
+      }}
+    >
+      {/* ── Winner banner ── */}
+      <div
+        style={{
+          background: `linear-gradient(90deg, ${winResult.color}18 0%, transparent 100%)`,
+          borderBottom: `1px solid ${winResult.color}30`,
+          padding: 'var(--space-md) var(--space-lg)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          gap: 'var(--space-md)',
+          flexWrap: 'wrap',
+        }}
+      >
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          <span style={{ fontSize: '1.25rem', lineHeight: 1 }}>{winResult.icon}</span>
+          <span
+            style={{
+              fontSize: '1rem',
+              fontWeight: 700,
+              color: winResult.color,
+            }}
+          >
+            {winResult.label}
+          </span>
+        </div>
+        <button
+          className="btn btn-primary btn-sm"
+          onClick={onDebateAgain}
+          style={{ gap: 6, flexShrink: 0 }}
+        >
+          <Swords size={14} />
+          Debate Again
+        </button>
+      </div>
+
+      {/* ── Result bar ── */}
+      <div
+        style={{
+          background: `${resultColor}08`,
+          borderBottom: `1px solid ${resultColor}20`,
+          padding: 'var(--space-sm) var(--space-lg)',
+          display: 'flex',
+          alignItems: 'center',
+          gap: 10,
+        }}
+      >
+        <Trophy size={15} color={resultColor} />
+        <span style={{ fontWeight: 600, fontSize: '0.875rem', color: 'var(--color-text-secondary)' }}>
+          {resultLabel}
+        </span>
+        <span
+          style={{
+            padding: '2px 10px',
+            borderRadius: 'var(--radius-full)',
+            background: `${resultColor}18`,
+            border: `1px solid ${resultColor}35`,
+            fontSize: '0.8rem',
+            fontWeight: 700,
+            color: resultColor,
+            marginLeft: 'auto',
+          }}
+        >
+          {norm.toFixed(1)} / 10
+        </span>
+      </div>
+
+      {/* ── Key insights row ── */}
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
+          gap: 0,
+        }}
+      >
+        {keyStrength && (
+          <div
+            style={{
+              padding: 'var(--space-md) var(--space-lg)',
+              borderRight: '1px solid var(--color-border)',
+              display: 'flex',
+              gap: 12,
+              alignItems: 'flex-start',
+            }}
+          >
+            <CheckCircle2 size={16} color="var(--color-success)" style={{ flexShrink: 0, marginTop: 2 }} />
+            <div>
+              <p style={{ fontSize: '0.72rem', fontWeight: 700, color: 'var(--color-success)', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 4 }}>
+                Key Strength
+              </p>
+              <p style={{ fontSize: '0.875rem', color: 'var(--color-text-secondary)', lineHeight: 1.5 }}>
+                {keyStrength}
+              </p>
+            </div>
+          </div>
+        )}
+        {keyImprovement && (
+          <div
+            style={{
+              padding: 'var(--space-md) var(--space-lg)',
+              display: 'flex',
+              gap: 12,
+              alignItems: 'flex-start',
+            }}
+          >
+            <ArrowUpCircle size={16} color="var(--color-warning)" style={{ flexShrink: 0, marginTop: 2 }} />
+            <div>
+              <p style={{ fontSize: '0.72rem', fontWeight: 700, color: 'var(--color-warning)', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 4 }}>
+                Key Improvement
+              </p>
+              <p style={{ fontSize: '0.875rem', color: 'var(--color-text-secondary)', lineHeight: 1.5 }}>
+                {keyImprovement}
+              </p>
+            </div>
+          </div>
+        )}
+        {!keyStrength && !keyImprovement && (
+          <div style={{ padding: 'var(--space-md) var(--space-lg)', color: 'var(--color-text-muted)', fontSize: '0.875rem' }}>
+            Complete more rounds for detailed insights.
+          </div>
+        )}
+      </div>
     </div>
   );
 }
@@ -205,6 +370,14 @@ export default function Results() {
             </div>
             <ScoreCircle score={normalisedOverall} />
           </div>
+
+          {/* ── Concise Summary Card ─────────────────────────────────────── */}
+          <DebateSummaryCard
+            score={normalisedOverall}
+            strengths={results.strengths}
+            weaknesses={results.weaknesses}
+            onDebateAgain={() => { reset(); navigate('/setup'); }}
+          />
 
           {/* Score Breakdown */}
           {scorePairs.length > 0 && (

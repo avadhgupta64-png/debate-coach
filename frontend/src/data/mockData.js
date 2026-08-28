@@ -1,12 +1,32 @@
 export const SUGGESTED_TOPICS = [
+  // Technology & Society
   'Should AI be allowed in schools?',
-  'Should social media have age restrictions?',
+  'Should social media platforms be held legally responsible for misinformation?',
+  'Should governments regulate the use of AI in hiring decisions?',
+  'Is technology making us more isolated?',
+  // Environment & Science
   'Is space exploration worth the cost?',
+  'Is nuclear energy a viable climate solution?',
+  'Should wealthy nations pay reparations for climate change?',
+  'Should eating meat be taxed to fight climate change?',
+  // Education & Youth
   'Should homework be abolished?',
   'Should school uniforms be mandatory?',
-  'Is remote work better than office work?',
+  'Should university education be free?',
+  'Should smartphones be banned in schools?',
+  // Politics & Society
   'Should voting be mandatory?',
-  'Is nuclear energy a viable climate solution?',
+  'Should the voting age be lowered to 16?',
+  'Should social media have age restrictions?',
+  'Is civil disobedience ever justified?',
+  // Work & Economy
+  'Is remote work better than office work?',
+  'Should a four-day work week become the global standard?',
+  'Should billionaires exist?',
+  // Ethics & Philosophy
+  'Should animals have the same rights as humans?',
+  'Is privacy more important than security?',
+  'Should gene editing in humans be allowed?',
 ];
 
 export const DIFFICULTIES = [
