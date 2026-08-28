@@ -290,7 +290,7 @@ export default function Dashboard() {
                     backgroundClip: 'text',
                   }}
                 >
-                  Win every room
+                  Own the room
                 </span>
                 {/*
                   The period is the projectile. The animation hides it via
@@ -349,7 +349,7 @@ export default function Dashboard() {
                 {[
                   { icon: <CheckCircle2 size={13} color="var(--color-success)" />, text: 'Free to start' },
                   { icon: <CheckCircle2 size={13} color="var(--color-success)" />, text: 'No prep needed' },
-                  { icon: <CheckCircle2 size={13} color="var(--color-success)" />, text: 'Results in 30 min' },
+                  { icon: <CheckCircle2 size={13} color="var(--color-success)" />, text: 'Instant feedback' },
                 ].map(({ icon, text }) => (
                   <span key={text} style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: '0.8rem', color: 'var(--color-text-muted)' }}>
                     {icon}{text}
