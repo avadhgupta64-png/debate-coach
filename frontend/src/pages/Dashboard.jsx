@@ -7,7 +7,6 @@ import {
   Award,
   ChevronRight,
   Swords,
-  BookOpen,
   ArrowRight,
   History,
   Clock,
@@ -18,6 +17,7 @@ import {
   ShieldCheck,
   MessageSquare,
   CheckCircle2,
+  Sparkles,
 } from 'lucide-react';
 import { useDebateHistory } from '../hooks/useDebateHistory.js';
 import { useDraftDebate } from '../hooks/useDraftDebate.js';
@@ -38,37 +38,14 @@ const DIFFICULTY_COLORS = {
 
 function StatCard({ icon, label, value, sub, color }) {
   return (
-    <div
-      className="card"
-      style={{
-        display: 'flex',
-        alignItems: 'flex-start',
-        gap: 'var(--space-md)',
-        transition: 'border-color var(--transition-base)',
-      }}
-    >
-      <div
-        style={{
-          width: 44,
-          height: 44,
-          borderRadius: 'var(--radius-md)',
-          background: color + '18',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          flexShrink: 0,
-        }}
-      >
+    <div className="stat-card">
+      <div className="stat-card__icon" style={{ '--stat-color': color }}>
         {icon}
       </div>
-      <div>
-        <p style={{ fontSize: '0.8rem', color: 'var(--color-text-muted)', marginBottom: 4 }}>{label}</p>
-        <p style={{ fontSize: '1.4rem', fontWeight: 700, color: 'var(--color-text-primary)', lineHeight: 1 }}>
-          {value}
-        </p>
-        {sub && (
-          <p style={{ fontSize: '0.78rem', color: 'var(--color-text-muted)', marginTop: 4 }}>{sub}</p>
-        )}
+      <div className="stat-card__body">
+        <p className="stat-card__label">{label}</p>
+        <p className="stat-card__value">{value}</p>
+        {sub && <p className="stat-card__sub">{sub}</p>}
       </div>
     </div>
   );
@@ -90,6 +67,17 @@ function timeAgo(isoString) {
   return `${weeks} weeks ago`;
 }
 
+function scoreColor(score) {
+  if (score >= 8) return 'var(--color-success)';
+  if (score >= 6) return 'var(--color-primary)';
+  return 'var(--color-warning)';
+}
+
+function normalizeScore(raw) {
+  if (typeof raw !== 'number') return null;
+  return raw > 10 ? raw / 10 : raw;
+}
+
 export default function Dashboard() {
   const navigate = useNavigate();
   const { currentUser } = useAuth();
@@ -99,28 +87,21 @@ export default function Dashboard() {
   const { setConfig } = useDebate();
   useDocumentTitle('Dashboard');
 
-  // Randomise +100 badge offset once per mount/reload.
   const scoreOffset = useMemo(() => ({
     x: Math.round((Math.random() - 0.5) * 80),
     y: Math.round(Math.random() * -60 - 10),
   }), []);
 
-  // Ref for the period span — the animation measures its position to fly from
   const periodRef = useRef(null);
-
-  // Draft detection — pick the most recent draft for the resume banner
   const draft = hasDraft() ? loadLatestDraft() : null;
+  const recentDebates = history.slice(0, 3);
+  const isNewUser = history.length === 0;
 
-  // Gate: guests must sign in before starting a debate
   const startDebate = () => {
-    if (!currentUser) {
-      openSignInModal('/setup');
-    } else {
-      navigate('/setup');
-    }
+    if (!currentUser) openSignInModal('/setup');
+    else navigate('/setup');
   };
 
-  // Resume a saved draft: restore config into DebateContext then navigate to practice
   const resumeDraft = () => {
     if (!draft) return;
     setConfig(draft.config);
@@ -132,282 +113,112 @@ export default function Dashboard() {
     navigate('/', { replace: true });
   };
 
-  // Show the 3 most recent debates
-  const recentDebates = history.slice(0, 3);
-
   return (
-    <div className="page-fade">
+    <div className="page-fade dashboard">
 
-      {/* ── Draft resume banner ─────────────────────────────────────────────── */}
+      {/* ── Draft Resume Banner ──────────────────────────────────────────────── */}
       {draft && (
-        <div
-          style={{
-            background: 'linear-gradient(90deg, rgba(79,142,247,0.10) 0%, rgba(124,106,245,0.07) 100%)',
-            borderBottom: '1px solid rgba(79,142,247,0.18)',
-          }}
-        >
-          <div
-            className="container"
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: 'var(--space-md)',
-              padding: 'var(--space-md) var(--space-lg)',
-              flexWrap: 'wrap',
-            }}
-          >
-            {/* Icon */}
-            <div
-              style={{
-                width: 40,
-                height: 40,
-                borderRadius: 'var(--radius-md)',
-                background: 'var(--color-primary-dim)',
-                border: '1px solid rgba(79,142,247,0.25)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                flexShrink: 0,
-              }}
-            >
-              <PlayCircle size={20} color="var(--color-primary)" />
+        <div className="draft-banner">
+          <div className="container draft-banner__inner">
+            <div className="draft-banner__icon">
+              <PlayCircle size={18} color="var(--color-primary)" />
             </div>
-
-            {/* Text */}
-            <div style={{ flex: 1, minWidth: 0 }}>
-              <p
-                style={{
-                  fontSize: '0.875rem',
-                  fontWeight: 600,
-                  color: 'var(--color-text-primary)',
-                  marginBottom: 2,
-                }}
-              >
-                You have an unfinished debate
-              </p>
-              <p
-                style={{
-                  fontSize: '0.8rem',
-                  color: 'var(--color-text-muted)',
-                  whiteSpace: 'nowrap',
-                  overflow: 'hidden',
-                  textOverflow: 'ellipsis',
-                }}
-              >
-                {draft.config?.topic
-                  ? `"${draft.config.topic}" · Round ${draft.round ?? 1} of 5`
-                  : `Round ${draft.round ?? 1} of 5`}
-                {draft.savedAt
-                  ? ` · saved ${timeAgo(draft.savedAt)}`
-                  : ''}
+            <div className="draft-banner__text">
+              <p className="draft-banner__title">Unfinished debate</p>
+              <p className="draft-banner__sub">
+                {draft.config?.topic ? `"${draft.config.topic}" · ` : ''}
+                Round {draft.round ?? 1} of 5
+                {draft.savedAt ? ` · saved ${timeAgo(draft.savedAt)}` : ''}
               </p>
             </div>
-
-            {/* Actions */}
-            <div style={{ display: 'flex', gap: 'var(--space-sm)', flexShrink: 0 }}>
-              <button
-                className="btn btn-ghost btn-sm"
-                onClick={discardDraft}
-                style={{ color: 'var(--color-text-muted)' }}
-                title="Discard draft"
-              >
-                <Trash2 size={14} />
-                Discard
+            <div className="draft-banner__actions">
+              <button className="btn btn-ghost btn-sm" onClick={discardDraft}>
+                <Trash2 size={13} /> Discard
               </button>
-              <button
-                className="btn btn-primary btn-sm"
-                onClick={resumeDraft}
-              >
-                <PlayCircle size={14} />
-                Resume
+              <button className="btn btn-primary btn-sm" onClick={resumeDraft}>
+                <PlayCircle size={13} /> Resume
               </button>
             </div>
           </div>
         </div>
       )}
 
-      {/* Hero */}
-      <section
-        style={{
-          background: 'linear-gradient(160deg, var(--color-surface) 0%, var(--color-bg) 100%)',
-          borderBottom: '1px solid var(--color-border)',
-          padding: 'var(--space-3xl) 0 var(--space-2xl)',
-        }}
-      >
-        <div className="container">
-          <div
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              gap: 'var(--space-2xl)',
-              flexWrap: 'wrap',
-            }}
-          >
-            <div style={{ maxWidth: 560 }}>
-              <div
-                style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: 8,
-                  padding: '6px 14px',
-                  borderRadius: 'var(--radius-full)',
-                  background: 'var(--color-primary-dim)',
-                  border: '1px solid rgba(79,142,247,0.2)',
-                  marginBottom: 'var(--space-lg)',
-                }}
-              >
-                <Target size={14} color="var(--color-primary)" />
-                <span
-                  style={{
-                    fontSize: '0.78rem',
-                    fontWeight: 600,
-                    color: 'var(--color-primary)',
-                    letterSpacing: '0.05em',
-                    textTransform: 'uppercase',
-                  }}
-                >
-                  AI Debate Training
-                </span>
-              </div>
+      {/* ── Hero ─────────────────────────────────────────────────────────────── */}
+      <section className="hero-section">
+        <div className="hero-section__bg" aria-hidden="true" />
+        <div className="container hero-section__inner">
 
-              <h1
-                style={{
-                  fontFamily: 'var(--font-display)',
-                  fontSize: 'clamp(2rem, 4vw, 3rem)',
-                  fontWeight: 700,
-                  color: 'var(--color-text-primary)',
-                  lineHeight: 1.15,
-                  marginBottom: 'var(--space-md)',
-                }}
-              >
-                Argue better.{' '}
-                <span
-                  style={{
-                    background: 'linear-gradient(135deg, var(--color-primary), var(--color-accent))',
-                    WebkitBackgroundClip: 'text',
-                    WebkitTextFillColor: 'transparent',
-                    backgroundClip: 'text',
-                  }}
-                >
-                  Own the room
-                </span>
-                {/*
-                  The period is the projectile. The animation hides it via
-                  periodRef.current.style.visibility = 'hidden' while a portal
-                  clone flies across the screen. Full opacity initially.
-                */}
-                <span
-                  ref={periodRef}
-                  aria-hidden="true"
-                  style={{
-                    background: 'linear-gradient(135deg, var(--color-primary), var(--color-accent))',
-                    WebkitBackgroundClip: 'text',
-                    WebkitTextFillColor: 'transparent',
-                    backgroundClip: 'text',
-                    display: 'inline-block',
-                  }}
-                >.</span>
-                {/* Screen-reader-only period so the sentence punctuation is correct */}
-                <span className="sr-only">.</span>
-              </h1>
-
-              <p
-                style={{
-                  fontSize: '1.05rem',
-                  color: 'var(--color-text-secondary)',
-                  lineHeight: 1.7,
-                  marginBottom: 'var(--space-xl)',
-                  maxWidth: 460,
-                }}
-              >
-                Debate a sharp AI opponent, get instant round-by-round coaching, and leave a stronger speaker — in under 30 minutes.
-              </p>
-
-              <div className="hero-cta-group" style={{ display: 'flex', gap: 'var(--space-md)', flexWrap: 'wrap', alignItems: 'center' }}>
-                <button
-                  className="btn btn-primary btn-lg"
-                  onClick={startDebate}
-                  style={{ minWidth: 200 }}
-                >
-                  <Swords size={18} />
-                  Start Your First Debate
-                  <ArrowRight size={16} />
-                </button>
-                <button
-                  className="btn btn-ghost btn-lg"
-                  onClick={() => navigate('/history')}
-                  style={{ color: 'var(--color-text-secondary)' }}
-                >
-                  <History size={18} />
-                  My History
-                </button>
-              </div>
-
-              {/* Social proof strip */}
-              <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-md)', marginTop: 'var(--space-lg)', flexWrap: 'wrap' }}>
-                {[
-                  { icon: <CheckCircle2 size={13} color="var(--color-success)" />, text: 'Free to start' },
-                  { icon: <CheckCircle2 size={13} color="var(--color-success)" />, text: 'No prep needed' },
-                  { icon: <CheckCircle2 size={13} color="var(--color-success)" />, text: 'Instant feedback' },
-                ].map(({ icon, text }) => (
-                  <span key={text} style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: '0.8rem', color: 'var(--color-text-muted)' }}>
-                    {icon}{text}
-                  </span>
-                ))}
-              </div>
+          {/* Left column */}
+          <div className="hero-section__content">
+            <div className="hero-pill">
+              <Sparkles size={13} color="var(--color-primary)" />
+              <span>AI Debate Training</span>
             </div>
 
-            {/* Hero animation — catapult + target board */}
-            <div
-              className="hide-mobile"
-              style={{
-                flexShrink: 0,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}
-            >
-              <HeroCatapultAnimation scoreOffset={scoreOffset} periodRef={periodRef} />
+            <h1 className="hero-heading">
+              Argue better.{' '}
+              <span className="hero-heading__gradient">
+                Own the room
+              </span>
+              <span
+                ref={periodRef}
+                aria-hidden="true"
+                className="hero-heading__gradient hero-period"
+              >.</span>
+              <span className="sr-only">.</span>
+            </h1>
+
+            <p className="hero-subtext">
+              Debate a sharp AI opponent, get instant round-by-round coaching, and leave a stronger speaker — in under 30 minutes.
+            </p>
+
+            <div className="hero-cta-group">
+              <button className="btn btn-primary btn-lg hero-cta-primary" onClick={startDebate}>
+                <Swords size={18} />
+                Start Your First Debate
+                <ArrowRight size={16} />
+              </button>
+              <button
+                className="btn btn-ghost btn-lg"
+                onClick={() => navigate('/history')}
+              >
+                <History size={17} />
+                My History
+              </button>
             </div>
+
+            <div className="hero-proof">
+              {[
+                { text: 'Free to start' },
+                { text: 'No prep needed' },
+                { text: 'Instant feedback' },
+              ].map(({ text }) => (
+                <span key={text} className="hero-proof__item">
+                  <CheckCircle2 size={13} color="var(--color-success)" />
+                  {text}
+                </span>
+              ))}
+            </div>
+          </div>
+
+          {/* Right column — animation */}
+          <div className="hero-section__visual hide-mobile">
+            <HeroCatapultAnimation scoreOffset={scoreOffset} periodRef={periodRef} />
           </div>
         </div>
       </section>
 
-      {/* ── How it works ────────────────────────────────────────────────────── */}
-      {history.length === 0 && (
-        <section
-          style={{
-            padding: 'var(--space-3xl) 0',
-            borderBottom: '1px solid var(--color-border)',
-          }}
-        >
+      {/* ── How it works (new users only) ───────────────────────────────────── */}
+      {isNewUser && (
+        <section className="section section--bordered">
           <div className="container">
-            <div style={{ textAlign: 'center', marginBottom: 'var(--space-2xl)' }}>
+            <div className="section-header">
               <p className="section-label">How it works</p>
-              <h2
-                style={{
-                  fontSize: 'clamp(1.4rem, 2.5vw, 1.9rem)',
-                  fontWeight: 700,
-                  color: 'var(--color-text-primary)',
-                  marginBottom: 'var(--space-sm)',
-                }}
-              >
-                From zero to confident debater in 3 steps
-              </h2>
-              <p style={{ fontSize: '0.9rem', color: 'var(--color-text-muted)', maxWidth: 440, margin: '0 auto' }}>
-                No prep, no partner, no problem. Just pick a topic and go.
-              </p>
+              <h2 className="section-title">From zero to confident debater in 3 steps</h2>
+              <p className="section-desc">No prep, no partner, no problem. Just pick a topic and go.</p>
             </div>
 
-            <div
-              style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
-                gap: 'var(--space-lg)',
-                position: 'relative',
-              }}
-            >
+            <div className="steps-grid">
               {[
                 {
                   step: 1,
@@ -431,68 +242,16 @@ export default function Dashboard() {
                   desc: 'See if you won, get a score breakdown, your key strength, one targeted fix, and a coach note.',
                 },
               ].map(({ step, icon, color, title, desc }) => (
-                <div
-                  key={step}
-                  className="card"
-                  style={{
-                    position: 'relative',
-                    paddingTop: 'var(--space-xl)',
-                    borderTop: `2px solid ${color}`,
-                  }}
-                >
-                  {/* Step number pill */}
-                  <div
-                    style={{
-                      position: 'absolute',
-                      top: -14,
-                      left: 'var(--space-lg)',
-                      width: 28,
-                      height: 28,
-                      borderRadius: '50%',
-                      background: color,
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      fontSize: '0.75rem',
-                      fontWeight: 800,
-                      color: '#fff',
-                      boxShadow: `0 0 12px ${color}60`,
-                    }}
-                  >
-                    {step}
-                  </div>
-                  <div
-                    style={{
-                      width: 44,
-                      height: 44,
-                      borderRadius: 'var(--radius-md)',
-                      background: `${color}18`,
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      marginBottom: 'var(--space-md)',
-                    }}
-                  >
-                    {icon}
-                  </div>
-                  <h3
-                    style={{
-                      fontSize: '0.95rem',
-                      fontWeight: 700,
-                      color: 'var(--color-text-primary)',
-                      marginBottom: 'var(--space-sm)',
-                    }}
-                  >
-                    {title}
-                  </h3>
-                  <p style={{ fontSize: '0.875rem', color: 'var(--color-text-secondary)', lineHeight: 1.6 }}>
-                    {desc}
-                  </p>
+                <div key={step} className="step-card" style={{ '--step-color': color }}>
+                  <div className="step-card__number">{step}</div>
+                  <div className="step-card__icon-wrap">{icon}</div>
+                  <h3 className="step-card__title">{title}</h3>
+                  <p className="step-card__desc">{desc}</p>
                 </div>
               ))}
             </div>
 
-            <div style={{ textAlign: 'center', marginTop: 'var(--space-2xl)' }}>
+            <div className="section-cta">
               <button className="btn btn-primary btn-lg" onClick={startDebate}>
                 <Swords size={18} />
                 Try your first debate
@@ -503,33 +262,17 @@ export default function Dashboard() {
         </section>
       )}
 
-      {/* ── Benefits ─────────────────────────────────────────────────────────── */}
-      {history.length === 0 && (
-        <section style={{ padding: 'var(--space-3xl) 0', borderBottom: '1px solid var(--color-border)' }}>
+      {/* ── Benefits (new users only) ────────────────────────────────────────── */}
+      {isNewUser && (
+        <section className="section section--bordered">
           <div className="container">
-            <div style={{ textAlign: 'center', marginBottom: 'var(--space-xl)' }}>
-              <p className="section-label" style={{ display: 'block' }}>Why Debate Coach</p>
-              <h2
-                style={{
-                  fontSize: 'clamp(1.4rem, 2.5vw, 1.9rem)',
-                  fontWeight: 700,
-                  color: 'var(--color-text-primary)',
-                  marginBottom: 'var(--space-sm)',
-                }}
-              >
-                Built for people who want to win arguments
-              </h2>
-              <p style={{ fontSize: '0.9rem', color: 'var(--color-text-muted)', maxWidth: 420, margin: '0 auto' }}>
-                Not just a chatbot — a structured training system with real feedback.
-              </p>
+            <div className="section-header">
+              <p className="section-label">Why Debate Coach</p>
+              <h2 className="section-title">Built for people who want to win arguments</h2>
+              <p className="section-desc">Not just a chatbot — a structured training system with real feedback.</p>
             </div>
-            <div
-              style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
-                gap: 'var(--space-lg)',
-              }}
-            >
+
+            <div className="benefits-grid">
               {[
                 {
                   icon: <Brain size={20} color="var(--color-gold)" />,
@@ -547,50 +290,14 @@ export default function Dashboard() {
                   icon: <ShieldCheck size={20} color="var(--color-success)" />,
                   color: 'var(--color-success)',
                   title: 'Track your improvement',
-                  desc: 'History, skill scores, and streaks are saved so you can see exactly how far you\'ve come.',
+                  desc: "History, skill scores, and streaks are saved so you can see exactly how far you've come.",
                 },
               ].map(({ icon, color, title, desc }) => (
-                <div
-                  key={title}
-                  style={{
-                    display: 'flex',
-                    gap: 'var(--space-md)',
-                    padding: 'var(--space-lg)',
-                    background: 'var(--color-surface)',
-                    border: '1px solid var(--color-border)',
-                    borderTop: `2px solid ${color}`,
-                    borderRadius: 'var(--radius-lg)',
-                    alignItems: 'flex-start',
-                  }}
-                >
-                  <div
-                    style={{
-                      width: 40,
-                      height: 40,
-                      borderRadius: 'var(--radius-md)',
-                      background: `${color}15`,
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      flexShrink: 0,
-                    }}
-                  >
-                    {icon}
-                  </div>
+                <div key={title} className="benefit-card" style={{ '--benefit-color': color }}>
+                  <div className="benefit-card__icon-wrap">{icon}</div>
                   <div>
-                    <h3
-                      style={{
-                        fontSize: '0.9rem',
-                        fontWeight: 700,
-                        color: 'var(--color-text-primary)',
-                        marginBottom: 'var(--space-xs)',
-                      }}
-                    >
-                      {title}
-                    </h3>
-                    <p style={{ fontSize: '0.85rem', color: 'var(--color-text-secondary)', lineHeight: 1.65 }}>
-                      {desc}
-                    </p>
+                    <h3 className="benefit-card__title">{title}</h3>
+                    <p className="benefit-card__desc">{desc}</p>
                   </div>
                 </div>
               ))}
@@ -599,17 +306,11 @@ export default function Dashboard() {
         </section>
       )}
 
-      {/* Stats */}
-      <section style={{ padding: 'var(--space-2xl) 0' }}>
+      {/* ── Stats ────────────────────────────────────────────────────────────── */}
+      <section className="section">
         <div className="container">
           <p className="section-label">Your Progress</p>
-          <div
-            style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))',
-              gap: 'var(--space-md)',
-            }}
-          >
+          <div className="stats-grid">
             <StatCard
               icon={<Swords size={20} color="var(--color-primary)" />}
               label="Debates Practiced"
@@ -642,130 +343,78 @@ export default function Dashboard() {
         </div>
       </section>
 
-      {/* AI Coach Card */}
-      <section style={{ padding: 'var(--space-md) 0 var(--space-lg)' }}>
+      {/* ── AI Coach ─────────────────────────────────────────────────────────── */}
+      <section className="section section--compact">
         <div className="container">
           <p className="section-label">Your Coach</p>
-          <div style={{ maxWidth: 480 }}>
+          <div className="coach-card-wrap">
             <CoachCard />
           </div>
         </div>
       </section>
 
-      {/* Recent Debates */}
-      <section style={{ padding: 'var(--space-md) 0 var(--space-2xl)' }}>
+      {/* ── Recent Debates ───────────────────────────────────────────────────── */}
+      <section className="section section--bottom">
         <div className="container">
-          <div className="flex-between" style={{ marginBottom: 'var(--space-lg)' }}>
+          <div className="section-row">
             <p className="section-label" style={{ marginBottom: 0 }}>Recent Debates</p>
             {history.length > 3 && (
-              <button
-                className="btn btn-ghost btn-sm"
-                onClick={() => navigate('/history')}
-              >
+              <button className="btn btn-ghost btn-sm" onClick={() => navigate('/history')}>
                 View all <ArrowRight size={14} />
               </button>
             )}
           </div>
 
           {recentDebates.length > 0 ? (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-md)' }}>
-              {recentDebates.map((debate) => (
-                <div
-                  key={debate.id}
-                  className="card"
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: 'var(--space-md)',
-                    cursor: 'pointer',
-                    transition: 'border-color var(--transition-base)',
-                    flexWrap: 'wrap',
-                  }}
-                  onMouseEnter={(e) => (e.currentTarget.style.borderColor = 'var(--color-border-hover)')}
-                  onMouseLeave={(e) => (e.currentTarget.style.borderColor = 'var(--color-border)')}
-                  onClick={() => navigate('/history')}
-                >
-                  <div style={{ flex: 1, minWidth: 200 }}>
-                    <p
-                      style={{
-                        fontWeight: 600,
-                        color: 'var(--color-text-primary)',
-                        marginBottom: 6,
-                        fontSize: '0.95rem',
-                      }}
-                    >
-                      {debate.topic}
-                    </p>
-                    <div
-                      style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: 'var(--space-sm)',
-                        flexWrap: 'wrap',
-                      }}
-                    >
-                      <PositionBadge position={debate.position} />
+            <div className="debates-list">
+              {recentDebates.map((debate) => {
+                const score = normalizeScore(debate.overallScore);
+                return (
+                  <div
+                    key={debate.id}
+                    className="debate-row"
+                    onClick={() => navigate('/history')}
+                    role="button"
+                    tabIndex={0}
+                    onKeyDown={(e) => e.key === 'Enter' && navigate('/history')}
+                  >
+                    <div className="debate-row__main">
+                      <p className="debate-row__topic">{debate.topic}</p>
+                      <div className="debate-row__meta">
+                        <PositionBadge position={debate.position} />
+                        <span
+                          className="debate-row__difficulty"
+                          style={{ color: DIFFICULTY_COLORS[debate.difficulty] || 'var(--color-text-muted)' }}
+                        >
+                          {debate.difficulty}
+                        </span>
+                        <span className="debate-row__time">
+                          <Clock size={11} />
+                          {timeAgo(debate.completedAt)}
+                        </span>
+                      </div>
+                    </div>
+                    <div className="debate-row__score">
                       <span
-                        style={{
-                          fontSize: '0.75rem',
-                          color: DIFFICULTY_COLORS[debate.difficulty] || 'var(--color-text-muted)',
-                          fontWeight: 600,
-                          textTransform: 'capitalize',
-                        }}
+                        className="debate-row__score-value"
+                        style={{ color: score ? scoreColor(score) : 'var(--color-text-muted)' }}
                       >
-                        {debate.difficulty}
+                        {score !== null ? score.toFixed(1) : '—'}
                       </span>
-                      <span style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>
-                        <Clock size={11} />
-                        {timeAgo(debate.completedAt)}
-                      </span>
+                      <span className="debate-row__score-denom">/10</span>
+                      <ChevronRight size={15} color="var(--color-text-muted)" />
                     </div>
                   </div>
-
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-md)' }}>
-                    <div style={{ textAlign: 'right' }}>
-                      <p
-                        style={{
-                          fontSize: '1.4rem',
-                          fontWeight: 700,
-                          color:
-                            (typeof debate.overallScore === 'number' && debate.overallScore > 10 ? debate.overallScore / 10 : debate.overallScore) >= 8
-                              ? 'var(--color-success)'
-                              : (typeof debate.overallScore === 'number' && debate.overallScore > 10 ? debate.overallScore / 10 : debate.overallScore) >= 6
-                              ? 'var(--color-primary)'
-                              : 'var(--color-warning)',
-                          lineHeight: 1,
-                        }}
-                      >
-                        {typeof debate.overallScore === 'number'
-                          ? (debate.overallScore > 10 ? (debate.overallScore / 10).toFixed(1) : debate.overallScore.toFixed(1))
-                          : '—'}
-                      </p>
-                      <p style={{ fontSize: '0.72rem', color: 'var(--color-text-muted)', marginTop: 2 }}>
-                        /10
-                      </p>
-                    </div>
-                    <ChevronRight size={16} color="var(--color-text-muted)" />
-                  </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           ) : (
-            /* Empty state */
-            <div
-              style={{
-                padding: 'var(--space-3xl) var(--space-lg)',
-                background: 'var(--color-surface)',
-                border: '1px dashed var(--color-border)',
-                borderRadius: 'var(--radius-lg)',
-                textAlign: 'center',
-              }}
-            >
-              <Swords size={40} color="var(--color-text-muted)" style={{ marginBottom: 'var(--space-md)', opacity: 0.4 }} />
-              <p style={{ color: 'var(--color-text-secondary)', fontSize: '1rem', fontWeight: 600, marginBottom: 'var(--space-sm)' }}>
-                No debates yet
-              </p>
-              <p style={{ color: 'var(--color-text-muted)', fontSize: '0.875rem', marginBottom: 'var(--space-lg)' }}>
+            <div className="empty-state">
+              <div className="empty-state__icon">
+                <Swords size={32} color="var(--color-text-muted)" />
+              </div>
+              <p className="empty-state__title">No debates yet</p>
+              <p className="empty-state__desc">
                 Complete your first session — your scores and history will appear here.
               </p>
               <button className="btn btn-primary" onClick={startDebate}>
@@ -776,22 +425,13 @@ export default function Dashboard() {
           )}
 
           {recentDebates.length > 0 && (
-            <div
-              style={{
-                marginTop: 'var(--space-lg)',
-                padding: 'var(--space-xl) var(--space-lg)',
-                background: 'linear-gradient(135deg, rgba(79,142,247,0.07) 0%, rgba(124,106,245,0.07) 100%)',
-                border: '1px solid rgba(79,142,247,0.18)',
-                borderRadius: 'var(--radius-lg)',
-                textAlign: 'center',
-              }}
-            >
-              <p style={{ color: 'var(--color-text-primary)', fontWeight: 600, marginBottom: 'var(--space-sm)' }}>
-                Ready to push your score higher?
-              </p>
-              <p style={{ color: 'var(--color-text-muted)', fontSize: '0.875rem', marginBottom: 'var(--space-lg)' }}>
-                Each session sharpens a different skill. Start another debate to keep the streak going.
-              </p>
+            <div className="cta-banner">
+              <div className="cta-banner__text">
+                <p className="cta-banner__title">Ready to push your score higher?</p>
+                <p className="cta-banner__desc">
+                  Each session sharpens a different skill. Start another debate to keep the streak going.
+                </p>
+              </div>
               <button className="btn btn-primary btn-lg" onClick={startDebate}>
                 <Swords size={18} />
                 Start a New Debate
