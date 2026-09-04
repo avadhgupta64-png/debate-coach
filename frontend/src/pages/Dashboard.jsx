@@ -18,6 +18,9 @@ import {
   MessageSquare,
   CheckCircle2,
   Sparkles,
+  GraduationCap,
+  Mic2,
+  Users,
 } from 'lucide-react';
 import { useDebateHistory } from '../hooks/useDebateHistory.js';
 import { useDraftDebate } from '../hooks/useDraftDebate.js';
@@ -339,6 +342,232 @@ export default function Dashboard() {
               sub="Stay consistent"
               color="var(--color-danger)"
             />
+          </div>
+        </div>
+      </section>
+
+      {/* ── About Debate Coach (new homepage content) ────────────────────────── */}
+      <section className="section section--bordered">
+        <div className="container">
+          <div className="section-header">
+            <p className="section-label">What is Debate Coach?</p>
+            <h2 className="section-title">AI-powered debate training for stronger arguments</h2>
+            <p className="section-desc">Debate Coach helps students, competitors, and curious learners practise argumentation, sharpen reasoning, and become confident speakers.</p>
+          </div>
+
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 'var(--space-lg)' }}>
+            <div className="card" style={{ borderLeft: '3px solid var(--color-primary)' }}>
+              <h3 style={{ fontSize: '0.95rem', fontWeight: 700, color: 'var(--color-text-primary)', marginBottom: 'var(--space-md)' }}>
+                What is Debate Coach?
+              </h3>
+              <p style={{ fontSize: '0.875rem', color: 'var(--color-text-secondary)', lineHeight: 1.75, marginBottom: 'var(--space-md)' }}>
+                Debate Coach is an AI-powered debate training platform. You choose a topic and position, then debate a smart AI opponent across five focused rounds. The AI adapts to your arguments in real time — challenging your reasoning, pressing on weaknesses, and reinforcing your strengths.
+              </p>
+              <p style={{ fontSize: '0.875rem', color: 'var(--color-text-secondary)', lineHeight: 1.75, margin: 0 }}>
+                After each round, you receive coaching feedback on clarity, evidence, logic, and rebuttal quality. By the end, you walk away with a clear sense of what worked, what didn't, and exactly how to improve.
+              </p>
+            </div>
+
+            <div className="card" style={{ borderLeft: '3px solid var(--color-success)' }}>
+              <h3 style={{ fontSize: '0.95rem', fontWeight: 700, color: 'var(--color-text-primary)', marginBottom: 'var(--space-md)' }}>
+                How AI Debate Practice Works
+              </h3>
+              <p style={{ fontSize: '0.875rem', color: 'var(--color-text-secondary)', lineHeight: 1.75, marginBottom: 'var(--space-sm)' }}>
+                1. <strong style={{ color: 'var(--color-text-primary)' }}>Pick a topic</strong> — Any subject, from school policies to global affairs.
+              </p>
+              <p style={{ fontSize: '0.875rem', color: 'var(--color-text-secondary)', lineHeight: 1.75, marginBottom: 'var(--space-sm)' }}>
+                2. <strong style={{ color: 'var(--color-text-primary)' }}>Prepare briefly</strong> — The AI generates a two-sided briefing so you understand both sides of the argument.
+              </p>
+              <p style={{ fontSize: '0.875rem', color: 'var(--color-text-secondary)', lineHeight: 1.75, marginBottom: 'var(--space-sm)' }}>
+                3. <strong style={{ color: 'var(--color-text-primary)' }}>Debate five rounds</strong> — Each round builds on the last. The AI responds to what you actually say, not generic rebuttals.
+              </p>
+              <p style={{ fontSize: '0.875rem', color: 'var(--color-text-secondary)', lineHeight: 1.75, marginBottom: 'var(--space-sm)' }}>
+                4. <strong style={{ color: 'var(--color-text-primary)' }}>Get coaching feedback</strong> — After every round, specific notes on what to improve.
+              </p>
+              <p style={{ fontSize: '0.875rem', color: 'var(--color-text-secondary)', lineHeight: 1.75, margin: 0 }}>
+                5. <strong style={{ color: 'var(--color-text-primary)' }}>Review your results</strong> — See your scores by skill, identify patterns, and track improvement over time.
+              </p>
+            </div>
+
+            <div className="card" style={{ borderLeft: '3px solid var(--color-accent)' }}>
+              <h3 style={{ fontSize: '0.95rem', fontWeight: 700, color: 'var(--color-text-primary)', marginBottom: 'var(--space-md)' }}>
+                What You Learn
+              </h3>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-sm)' }}>
+                <div style={{ display: 'flex', alignItems: 'flex-start', gap: 'var(--space-sm)' }}>
+                  <CheckCircle2 size={16} color="var(--color-primary)" style={{ marginTop: 2 }} />
+                  <p style={{ fontSize: '0.85rem', color: 'var(--color-text-secondary)', lineHeight: 1.65, margin: 0 }}>
+                    <strong style={{ color: 'var(--color-text-primary)' }}>Strong argument structure:</strong> Claims, evidence, explanation, and link.
+                  </p>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'flex-start', gap: 'var(--space-sm)' }}>
+                  <CheckCircle2 size={16} color="var(--color-primary)" style={{ marginTop: 2 }} />
+                  <p style={{ fontSize: '0.85rem', color: 'var(--color-text-secondary)', lineHeight: 1.65, margin: 0 }}>
+                    <strong style={{ color: 'var(--color-text-primary)' }}>Effective rebuttals:</strong> Identify flaws in reasoning and respond clearly under pressure.
+                  </p>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'flex-start', gap: 'var(--space-sm)' }}>
+                  <CheckCircle2 size={16} color="var(--color-primary)" style={{ marginTop: 2 }} />
+                  <p style={{ fontSize: '0.85rem', color: 'var(--color-text-secondary)', lineHeight: 1.65, margin: 0 }}>
+                    <strong style={{ color: 'var(--color-text-primary)' }}>Evidence use:</strong> Choose credible sources and integrate them smoothly.
+                  </p>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'flex-start', gap: 'var(--space-sm)' }}>
+                  <CheckCircle2 size={16} color="var(--color-primary)" style={{ marginTop: 2 }} />
+                  <p style={{ fontSize: '0.85rem', color: 'var(--color-text-secondary)', lineHeight: 1.65, margin: 0 }}>
+                    <strong style={{ color: 'var(--color-text-primary)' }}>Logical reasoning:</strong> Spot common fallacies and build arguments that hold up.
+                  </p>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'flex-start', gap: 'var(--space-sm)' }}>
+                  <CheckCircle2 size={16} color="var(--color-primary)" style={{ marginTop: 2 }} />
+                  <p style={{ fontSize: '0.85rem', color: 'var(--color-text-secondary)', lineHeight: 1.65, margin: 0 }}>
+                    <strong style={{ color: 'var(--color-text-primary)' }}>Communication clarity:</strong> Express complex ideas in a way others can follow.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div className="card" style={{ borderLeft: '3px solid var(--color-gold)' }}>
+              <h3 style={{ fontSize: '0.95rem', fontWeight: 700, color: 'var(--color-text-primary)', marginBottom: 'var(--space-md)' }}>
+                How AI Feedback Helps
+              </h3>
+              <p style={{ fontSize: '0.875rem', color: 'var(--color-text-secondary)', lineHeight: 1.75, marginBottom: 'var(--space-md)' }}>
+                After each debate round, the AI evaluates your performance across four core skills: clarity, evidence, logic, and rebuttals. You receive specific coaching notes — not generic praise.
+              </p>
+              <p style={{ fontSize: '0.875rem', color: 'var(--color-text-secondary)', lineHeight: 1.75, marginBottom: 'var(--space-md)' }}>
+                For example, instead of "Good job!", you get: "Your evidence was strong, but try to cite the source directly in your response rather than at the end. That makes your point more persuasive."
+              </p>
+              <p style={{ fontSize: '0.875rem', color: 'var(--color-text-secondary)', lineHeight: 1.75, margin: 0 }}>
+                This kind of specific, actionable feedback is what separates good debaters from great ones. You can see your scores improve over time and know exactly what to work on next.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ── Who It's For ───────────────────────────────────────────────────────── */}
+      <section className="section section--bordered">
+        <div className="container">
+          <div className="section-header">
+            <p className="section-label">Who It's For</p>
+            <h2 className="section-title">Whether you compete or just want to argue better</h2>
+            <p className="section-desc">Debate Coach is designed for students, competitors, and anyone who values clear thinking and strong communication.</p>
+          </div>
+
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 'var(--space-lg)' }}>
+            <div className="card" style={{ padding: 'var(--space-lg)' }}>
+              <div style={{ width: 40, height: 40, borderRadius: 'var(--radius-md)', background: 'var(--color-primary-dim)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 'var(--space-md)' }}>
+                <GraduationCap size={20} color="var(--color-primary)" />
+              </div>
+              <h3 style={{ fontSize: '0.9rem', fontWeight: 700, color: 'var(--color-text-primary)', marginBottom: 'var(--space-sm)' }}>
+                Students & Debate Club Members
+              </h3>
+              <p style={{ fontSize: '0.85rem', color: 'var(--color-text-secondary)', lineHeight: 1.75, margin: 0 }}>
+                Practice beyond club hours. Try both sides of a motion, drill specific topics, and use feedback to tell your coach exactly where you need help.
+              </p>
+            </div>
+
+            <div className="card" style={{ padding: 'var(--space-lg)' }}>
+              <div style={{ width: 40, height: 40, borderRadius: 'var(--radius-md)', background: 'var(--color-accent-dim)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 'var(--space-md)' }}>
+                <Mic2 size={20} color="var(--color-accent)" />
+              </div>
+              <h3 style={{ fontSize: '0.9rem', fontWeight: 700, color: 'var(--color-text-primary)', marginBottom: 'var(--space-sm)' }}>
+                Public Speakers & Presenters
+              </h3>
+              <p style={{ fontSize: '0.85rem', color: 'var(--color-text-secondary)', lineHeight: 1.75, margin: 0 }}>
+                The skills that make a good debater — structure, handling objections, delivering evidence confidently — directly transfer to presentations and pitches.
+              </p>
+            </div>
+
+            <div className="card" style={{ padding: 'var(--space-lg)' }}>
+              <div style={{ width: 40, height: 40, borderRadius: 'var(--radius-md)', background: 'var(--color-success-dim)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 'var(--space-md)' }}>
+                <Brain size={20} color="var(--color-success)" />
+              </div>
+              <h3 style={{ fontSize: '0.9rem', fontWeight: 700, color: 'var(--color-text-primary)', marginBottom: 'var(--space-sm)' }}>
+                Critical Thinkers
+              </h3>
+              <p style={{ fontSize: '0.85rem', color: 'var(--color-text-secondary)', lineHeight: 1.75, margin: 0 }}>
+                You don't need to compete to benefit. If you want to think more rigorously, understand both sides of complex issues, or practise constructing evidence-based arguments, this is for you.
+              </p>
+            </div>
+
+            <div className="card" style={{ padding: 'var(--space-lg)' }}>
+              <div style={{ width: 40, height: 40, borderRadius: 'var(--radius-md)', background: 'var(--color-gold-dim)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 'var(--space-md)' }}>
+                <Users size={20} color="var(--color-gold)" />
+              </div>
+              <h3 style={{ fontSize: '0.9rem', fontWeight: 700, color: 'var(--color-text-primary)', marginBottom: 'var(--space-sm)' }}>
+                Educators
+              </h3>
+              <p style={{ fontSize: '0.85rem', color: 'var(--color-text-secondary)', lineHeight: 1.75, margin: 0 }}>
+                Use Debate Coach as a classroom tool for practising argumentation. Students can practise individually between classes and bring better-prepared arguments to discussions.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ── Why Structured Practice ───────────────────────────────────────────── */}
+      <section className="section section--bordered">
+        <div className="container">
+          <div className="section-header">
+            <p className="section-label">Why Structured Debate Practice</p>
+            <h2 className="section-title">Because real skill needs real practice</h2>
+            <p className="section-desc">Structured debate training builds transferable skills that matter in every academic discipline and professional context.</p>
+          </div>
+
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: 'var(--space-lg)' }}>
+            <div className="card" style={{ padding: 'var(--space-lg)' }}>
+              <h3 style={{ fontSize: '0.9rem', fontWeight: 700, color: 'var(--color-text-primary)', marginBottom: 'var(--space-md)' }}>
+                Transferable Skills
+              </h3>
+              <ul style={{ paddingLeft: 'var(--space-lg)', display: 'flex', flexDirection: 'column', gap: 'var(--space-sm)', fontSize: '0.85rem', color: 'var(--color-text-secondary)', lineHeight: 1.7, margin: 0 }}>
+                <li><strong style={{ color: 'var(--color-text-primary)' }}>Critical thinking:</strong> Evaluating claims, spotting flawed reasoning, constructing sound arguments.</li>
+                <li><strong style={{ color: 'var(--color-text-primary)' }}>Verbal reasoning:</strong> Building chains of logic that hold under pressure.</li>
+                <li><strong style={{ color: 'var(--color-text-primary)' }}>Communication:</strong> Expressing complex ideas clearly and persuasively.</li>
+                <li><strong style={{ color: 'var(--color-text-primary)' }}>Research:</strong> Quickly building a case on unfamiliar topics using credible evidence.</li>
+              </ul>
+            </div>
+
+            <div className="card" style={{ padding: 'var(--space-lg)' }}>
+              <h3 style={{ fontSize: '0.9rem', fontWeight: 700, color: 'var(--color-text-primary)', marginBottom: 'var(--space-md)' }}>
+                Real-World Benefits
+              </h3>
+              <ul style={{ paddingLeft: 'var(--space-lg)', display: 'flex', flexDirection: 'column', gap: 'var(--space-sm)', fontSize: '0.85rem', color: 'var(--color-text-secondary)', lineHeight: 1.7, margin: 0 }}>
+                <li><strong style={{ color: 'var(--color-text-primary)' }}>Academic performance:</strong> Stronger essays, presentations, and class discussions.</li>
+                <li><strong style={{ color: 'var(--color-text-primary)' }}>Careeradvantage:</strong> Better pitches, negotiations, and problem-solving.</li>
+                <li><strong style={{ color: 'var(--color-text-primary)' }}>Informed citizenship:</strong> Understand both sides of complex issues before forming opinions.</li>
+                <li><strong style={{ color: 'var(--color-text-primary)' }}>Confidence:</strong> Speak and think clearly when the stakes are high.</li>
+              </ul>
+            </div>
+
+            <div className="card" style={{ padding: 'var(--space-lg)' }}>
+              <h3 style={{ fontSize: '0.9rem', fontWeight: 700, color: 'var(--color-text-primary)', marginBottom: 'var(--space-md)' }}>
+                Why AI?
+              </h3>
+              <p style={{ fontSize: '0.85rem', color: 'var(--color-text-secondary)', lineHeight: 1.75, margin: 0 }}>
+                A human debate partner is ideal, but one that's always available, adapts to your level, gives immediate feedback, and never gets frustrated is incredibly powerful. Debate Coach gives you that advantage.
+              </p>
+            </div>
+
+            <div className="card" style={{ padding: 'var(--space-lg)' }}>
+              <h3 style={{ fontSize: '0.9rem', fontWeight: 700, color: 'var(--color-text-primary)', marginBottom: 'var(--space-md)' }}>
+                No Partner Needed
+              </h3>
+              <p style={{ fontSize: '0.85rem', color: 'var(--color-text-secondary)', lineHeight: 1.75, margin: 0 }}>
+                Most people don't have regular access to a debate partner. Debate Coach closes that gap — practice whenever you want, for however long you want, at your own pace.
+              </p>
+            </div>
+          </div>
+
+          <div className="section-cta" style={{ marginTop: 'var(--space-2xl)' }}>
+            <p style={{ fontSize: '0.925rem', color: 'var(--color-text-secondary)', marginBottom: 'var(--space-lg)', maxWidth: 480, margin: '0 auto' }}>
+              Ready to put these skills into practice? Your first debate is free.
+            </p>
+            <button className="btn btn-primary btn-lg" onClick={startDebate}>
+              <Swords size={18} />
+              Start Your First Debate
+              <ArrowRight size={16} />
+            </button>
           </div>
         </div>
       </section>

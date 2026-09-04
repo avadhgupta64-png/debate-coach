@@ -17,6 +17,14 @@ import Privacy from './pages/Privacy.jsx';
 import Terms from './pages/Terms.jsx';
 import Contact from './pages/Contact.jsx';
 import DebateProfile from './pages/DebateProfile.jsx';
+import LearnHub from './pages/LearnHub.jsx';
+import ArgumentsPage from './pages/learn/Arguments.jsx';
+import RebuttalsPage from './pages/learn/Rebuttals.jsx';
+import FallaciesPage from './pages/learn/Fallacies.jsx';
+import EvidencePage from './pages/learn/Evidence.jsx';
+import PreparationPage from './pages/learn/Preparation.jsx';
+import TechniquesPage from './pages/learn/Techniques.jsx';
+import MistakesPage from './pages/learn/Mistakes.jsx';
 import { AuthProvider, useAuth } from './contexts/AuthContext.jsx';
 import { GuestProvider, useGuest } from './contexts/GuestContext.jsx';
 import LoadingSpinner from './components/LoadingSpinner.jsx';
@@ -205,6 +213,15 @@ function AppRoutes() {
       <Route path="/privacy"    element={<Privacy />} />
       <Route path="/terms"      element={<Terms />} />
       <Route path="/contact"    element={<Contact />} />
+      {/* Public Learn Hub */}
+      <Route path="/learn"      element={<LearnHub />} />
+      <Route path="/learn/arguments" element={<ArgumentsPage />} />
+      <Route path="/learn/rebuttals" element={<RebuttalsPage />} />
+      <Route path="/learn/fallacies" element={<FallaciesPage />} />
+      <Route path="/learn/evidence" element={<EvidencePage />} />
+      <Route path="/learn/preparation" element={<PreparationPage />} />
+      <Route path="/learn/techniques" element={<TechniquesPage />} />
+      <Route path="/learn/mistakes" element={<MistakesPage />} />
 
       {/* Fallback */}
       <Route path="*" element={<Navigate to="/" replace />} />
@@ -296,11 +313,12 @@ export default function App() {
                           }}
                         >
                           {[
+                            { to: '/', label: 'Home' },
+                            { to: '/learn', label: 'Learn' },
                             { to: '/about', label: 'About' },
-                            { to: '/resources', label: 'Resources' },
                             { to: '/contact', label: 'Contact' },
-                            { to: '/privacy', label: 'Privacy Policy' },
-                            { to: '/terms', label: 'Terms of Service' },
+                            { to: '/privacy', label: 'Privacy' },
+                            { to: '/terms', label: 'Terms' },
                           ].map((link) => (
                             <a
                               key={link.to}

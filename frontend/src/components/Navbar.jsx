@@ -50,7 +50,7 @@ export default function Navbar() {
     { to: '/',          label: 'Dashboard', icon: <Home    size={15} /> },
     { to: '/history',   label: 'History',   icon: <History size={15} /> },
     { to: '/profile',   label: 'My Profile',icon: <Brain   size={15} /> },
-    { to: '/resources', label: 'Resources', icon: <BookOpen size={15} /> },
+    { to: '/learn',     label: 'Learn',     icon: <BookOpen size={15} /> },
     { to: '/about',     label: 'About',     icon: <Info    size={15} /> },
   ];
 
