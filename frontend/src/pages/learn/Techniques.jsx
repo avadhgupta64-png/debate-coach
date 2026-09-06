@@ -2,12 +2,18 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { Zap, CheckCircle2, ArrowRight } from 'lucide-react';
 import { useDocumentTitle } from '../../hooks/useDocumentTitle.js';
+import MetaTags from '../../components/MetaTags.jsx';
 
 export default function TechniquesPage() {
   useDocumentTitle('Debate Techniques for Beginners — Learn Debate');
 
   return (
     <div className="page-fade" style={{ minHeight: '100vh' }}>
+      <MetaTags
+        title="Debate Techniques for Beginners — Debate Coach"
+        description="10 essential debate techniques that improve faster than raw talent. From leading with your strongest point to signposting structure — practical habits any beginner can apply immediately."
+        url="https://debate-coach-zeta.vercel.app/learn/techniques"
+      />
       <section style={{ background: 'linear-gradient(160deg, var(--color-surface) 0%, var(--color-bg) 100%)', borderBottom: '1px solid var(--color-border)', padding: 'var(--space-2xl) 0 var(--space-xl)' }}>
         <div className="container" style={{ maxWidth: 760 }}>
           <div style={{ display: 'inline-flex', alignItems: 'center', gap: 'var(--space-sm)', padding: '5px 12px', borderRadius: 'var(--radius-full)', background: 'var(--color-accent-dim)', border: '1px solid rgba(124, 106, 245, 0.2)', marginBottom: 'var(--space-lg)' }}>

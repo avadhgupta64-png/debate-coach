@@ -2,12 +2,18 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { Target, ArrowRight, CheckCircle2, Brain, Zap, Shield } from 'lucide-react';
 import { useDocumentTitle } from '../../hooks/useDocumentTitle.js';
+import MetaTags from '../../components/MetaTags.jsx';
 
 export default function RebuttalsPage() {
   useDocumentTitle('How to Rebut an Opposing Argument — Learn Debate');
 
   return (
     <div className="page-fade" style={{ minHeight: '100vh' }}>
+      <MetaTags
+        title="How to Rebut an Opposing Argument — Debate Coach"
+        description="Use the DARE framework to dismantle flawed reasoning and defend your position. Learn five proven rebuttal types that work in any debate format."
+        url="https://debate-coach-zeta.vercel.app/learn/rebuttals"
+      />
       <section style={{ background: 'linear-gradient(160deg, var(--color-surface) 0%, var(--color-bg) 100%)', borderBottom: '1px solid var(--color-border)', padding: 'var(--space-2xl) 0 var(--space-xl)' }}>
         <div className="container" style={{ maxWidth: 760 }}>
           <div style={{ display: 'inline-flex', alignItems: 'center', gap: 'var(--space-sm)', padding: '5px 12px', borderRadius: 'var(--radius-full)', background: 'var(--color-danger-dim)', border: '1px solid rgba(248, 113, 113, 0.2)', marginBottom: 'var(--space-lg)' }}>

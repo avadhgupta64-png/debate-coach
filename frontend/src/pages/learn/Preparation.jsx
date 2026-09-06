@@ -2,12 +2,18 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { Clock, CheckCircle2, ArrowRight, Target, Brain } from 'lucide-react';
 import { useDocumentTitle } from '../../hooks/useDocumentTitle.js';
+import MetaTags from '../../components/MetaTags.jsx';
 
 export default function PreparationPage() {
   useDocumentTitle('How to Prepare for a Debate — Learn Debate');
 
   return (
     <div className="page-fade" style={{ minHeight: '100vh' }}>
+      <MetaTags
+        title="How to Prepare for a Debate — Debate Coach"
+        description="Create a balanced brief for both sides using the 30-minute preparation framework. Learn how to anticipate counterarguments and focus your research on the strongest points."
+        url="https://debate-coach-zeta.vercel.app/learn/preparation"
+      />
       <section style={{ background: 'linear-gradient(160deg, var(--color-surface) 0%, var(--color-bg) 100%)', borderBottom: '1px solid var(--color-border)', padding: 'var(--space-2xl) 0 var(--space-xl)' }}>
         <div className="container" style={{ maxWidth: 760 }}>
           <div style={{ display: 'inline-flex', alignItems: 'center', gap: 'var(--space-sm)', padding: '5px 12px', borderRadius: 'var(--radius-full)', background: 'var(--color-gold-dim)', border: '1px solid rgba(240, 180, 41, 0.2)', marginBottom: 'var(--space-lg)' }}>

@@ -2,12 +2,18 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { AlertTriangle, ArrowRight } from 'lucide-react';
 import { useDocumentTitle } from '../../hooks/useDocumentTitle.js';
+import MetaTags from '../../components/MetaTags.jsx';
 
 export default function FallaciesPage() {
   useDocumentTitle('Logical Fallacies in Debate — Learn Debate');
 
   return (
     <div className="page-fade" style={{ minHeight: '100vh' }}>
+      <MetaTags
+        title="Logical Fallacies in Debate — Debate Coach"
+        description="Spot and avoid the 7 most common logical fallacies in debate. Learn how to identify flawed reasoning in your opponent's arguments and keep your own case airtight."
+        url="https://debate-coach-zeta.vercel.app/learn/fallacies"
+      />
       <section style={{ background: 'linear-gradient(160deg, var(--color-surface) 0%, var(--color-bg) 100%)', borderBottom: '1px solid var(--color-border)', padding: 'var(--space-2xl) 0 var(--space-xl)' }}>
         <div className="container" style={{ maxWidth: 760 }}>
           <div style={{ display: 'inline-flex', alignItems: 'center', gap: 'var(--space-sm)', padding: '5px 12px', borderRadius: 'var(--radius-full)', background: 'var(--color-warning-dim)', border: '1px solid rgba(251, 191, 36, 0.2)', marginBottom: 'var(--space-lg)' }}>
