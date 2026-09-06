@@ -161,12 +161,14 @@ export default function LearnHub() {
             Choose a topic to start learning
           </p>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 'var(--space-lg)' }}>
+          <div className="card-grid-flex" style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: 'var(--space-lg)' }}>
             {resources.map((resource) => (
               <Link
                 key={resource.id}
                 to={resource.path}
                 style={{
+                  flex: '0 0 300px',
+                  maxWidth: '380px',
                   display: 'flex',
                   flexDirection: 'column',
                   textDecoration: 'none',

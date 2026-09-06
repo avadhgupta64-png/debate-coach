@@ -355,8 +355,8 @@ export default function Dashboard() {
             <p className="section-desc">Debate Coach helps students, competitors, and curious learners practise argumentation, sharpen reasoning, and become confident speakers.</p>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 'var(--space-lg)' }}>
-            <div className="card" style={{ borderLeft: '3px solid var(--color-primary)' }}>
+          <div className="card-grid-flex" style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: 'var(--space-lg)' }}>
+            <div className="card" style={{ flex: '0 0 280px', maxWidth: '420px', borderLeft: '3px solid var(--color-primary)' }}>
               <h3 style={{ fontSize: '0.95rem', fontWeight: 700, color: 'var(--color-text-primary)', marginBottom: 'var(--space-md)' }}>
                 What is Debate Coach?
               </h3>
@@ -368,7 +368,7 @@ export default function Dashboard() {
               </p>
             </div>
 
-            <div className="card" style={{ borderLeft: '3px solid var(--color-success)' }}>
+            <div className="card" style={{ flex: '0 0 280px', maxWidth: '420px', borderLeft: '3px solid var(--color-success)' }}>
               <h3 style={{ fontSize: '0.95rem', fontWeight: 700, color: 'var(--color-text-primary)', marginBottom: 'var(--space-md)' }}>
                 How AI Debate Practice Works
               </h3>
@@ -389,7 +389,7 @@ export default function Dashboard() {
               </p>
             </div>
 
-            <div className="card" style={{ borderLeft: '3px solid var(--color-accent)' }}>
+            <div className="card" style={{ flex: '0 0 280px', maxWidth: '420px', borderLeft: '3px solid var(--color-accent)' }}>
               <h3 style={{ fontSize: '0.95rem', fontWeight: 700, color: 'var(--color-text-primary)', marginBottom: 'var(--space-md)' }}>
                 What You Learn
               </h3>
@@ -427,7 +427,7 @@ export default function Dashboard() {
               </div>
             </div>
 
-            <div className="card" style={{ borderLeft: '3px solid var(--color-gold)' }}>
+            <div className="card" style={{ flex: '0 0 280px', maxWidth: '420px', borderLeft: '3px solid var(--color-gold)' }}>
               <h3 style={{ fontSize: '0.95rem', fontWeight: 700, color: 'var(--color-text-primary)', marginBottom: 'var(--space-md)' }}>
                 How AI Feedback Helps
               </h3>
@@ -454,8 +454,8 @@ export default function Dashboard() {
             <p className="section-desc">Debate Coach is designed for students, competitors, and anyone who values clear thinking and strong communication.</p>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 'var(--space-lg)' }}>
-            <div className="card" style={{ padding: 'var(--space-lg)' }}>
+          <div className="card-grid-flex" style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: 'var(--space-lg)' }}>
+            <div className="card" style={{ flex: '0 0 240px', maxWidth: '360px', padding: 'var(--space-lg)' }}>
               <div style={{ width: 40, height: 40, borderRadius: 'var(--radius-md)', background: 'var(--color-primary-dim)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 'var(--space-md)' }}>
                 <GraduationCap size={20} color="var(--color-primary)" />
               </div>
@@ -467,7 +467,7 @@ export default function Dashboard() {
               </p>
             </div>
 
-            <div className="card" style={{ padding: 'var(--space-lg)' }}>
+            <div className="card" style={{ flex: '0 0 240px', maxWidth: '360px', padding: 'var(--space-lg)' }}>
               <div style={{ width: 40, height: 40, borderRadius: 'var(--radius-md)', background: 'var(--color-accent-dim)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 'var(--space-md)' }}>
                 <Mic2 size={20} color="var(--color-accent)" />
               </div>
@@ -479,7 +479,7 @@ export default function Dashboard() {
               </p>
             </div>
 
-            <div className="card" style={{ padding: 'var(--space-lg)' }}>
+            <div className="card" style={{ flex: '0 0 240px', maxWidth: '360px', padding: 'var(--space-lg)' }}>
               <div style={{ width: 40, height: 40, borderRadius: 'var(--radius-md)', background: 'var(--color-success-dim)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 'var(--space-md)' }}>
                 <Brain size={20} color="var(--color-success)" />
               </div>
@@ -491,7 +491,7 @@ export default function Dashboard() {
               </p>
             </div>
 
-            <div className="card" style={{ padding: 'var(--space-lg)' }}>
+            <div className="card" style={{ flex: '0 0 240px', maxWidth: '360px', padding: 'var(--space-lg)' }}>
               <div style={{ width: 40, height: 40, borderRadius: 'var(--radius-md)', background: 'var(--color-gold-dim)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 'var(--space-md)' }}>
                 <Users size={20} color="var(--color-gold)" />
               </div>
@@ -515,8 +515,8 @@ export default function Dashboard() {
             <p className="section-desc">Structured debate training builds transferable skills that matter in every academic discipline and professional context.</p>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: 'var(--space-lg)' }}>
-            <div className="card" style={{ padding: 'var(--space-lg)' }}>
+          <div className="card-grid-flex" style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: 'var(--space-lg)' }}>
+            <div className="card" style={{ flex: '0 0 260px', maxWidth: '400px', padding: 'var(--space-lg)' }}>
               <h3 style={{ fontSize: '0.9rem', fontWeight: 700, color: 'var(--color-text-primary)', marginBottom: 'var(--space-md)' }}>
                 Transferable Skills
               </h3>
@@ -528,7 +528,7 @@ export default function Dashboard() {
               </ul>
             </div>
 
-            <div className="card" style={{ padding: 'var(--space-lg)' }}>
+            <div className="card" style={{ flex: '0 0 260px', maxWidth: '400px', padding: 'var(--space-lg)' }}>
               <h3 style={{ fontSize: '0.9rem', fontWeight: 700, color: 'var(--color-text-primary)', marginBottom: 'var(--space-md)' }}>
                 Real-World Benefits
               </h3>
@@ -540,7 +540,7 @@ export default function Dashboard() {
               </ul>
             </div>
 
-            <div className="card" style={{ padding: 'var(--space-lg)' }}>
+            <div className="card" style={{ flex: '0 0 260px', maxWidth: '400px', padding: 'var(--space-lg)' }}>
               <h3 style={{ fontSize: '0.9rem', fontWeight: 700, color: 'var(--color-text-primary)', marginBottom: 'var(--space-md)' }}>
                 Why AI?
               </h3>
@@ -549,7 +549,7 @@ export default function Dashboard() {
               </p>
             </div>
 
-            <div className="card" style={{ padding: 'var(--space-lg)' }}>
+            <div className="card" style={{ flex: '0 0 260px', maxWidth: '400px', padding: 'var(--space-lg)' }}>
               <h3 style={{ fontSize: '0.9rem', fontWeight: 700, color: 'var(--color-text-primary)', marginBottom: 'var(--space-md)' }}>
                 No Partner Needed
               </h3>

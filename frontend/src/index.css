@@ -974,4 +974,10 @@ a:hover { color: var(--color-primary-hover); }
 
   .draft-banner__inner { gap: var(--space-sm); }
   .draft-banner__icon  { display: none; }
+
+  /* Flex-wrap card grids: go full-width on very small screens */
+  .card-grid-flex > * {
+    flex: 0 0 100% !important;
+    max-width: 100% !important;
+  }
 }
