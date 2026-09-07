@@ -297,7 +297,7 @@ export default function LearnHub() {
             }}
           >
             <h2 style={{ fontSize: '1.3rem', fontWeight: 700, color: 'var(--color-text-primary)', marginBottom: 'var(--space-sm)' }}>
-              Ready to apply what you\'ve learned?
+              Ready to apply what you've learned?
             </h2>
             <p
               style={{
